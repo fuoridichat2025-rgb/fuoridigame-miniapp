@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="it">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FuoriDiGame - Miniapp Fuffa</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--cream:#FFF8E7;--cream2:#FDF6E3;--forest:#1E3A2B;--forest2:#2D4A35;--gold:#D4AF37;--gold2:#C9A227;--ink:#1A1A1A;--muted:#6B6B6B;--card:#FFFFFF;--line:#E8DCC0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--cream);color:var(--ink);padding-bottom:96px}
+header{background:var(--forest);color:white;padding:18px 16px 14px;position:sticky;top:0;z-index:10}
+header h1{font-size:26px;letter-spacing:.5px;line-height:1}
+header h1 span{color:var(--gold)}
+header p{font-size:13px;opacity:.85;margin-top:4px}
+.topbar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:white;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.pill b{color:var(--gold)}
+.hero{margin:14px 16px 0;background:var(--gold);border-radius:16px;padding:14px;color:#1E3A2B;display:flex;gap:12px;align-items:center}
+.hero-emoji{font-size:32px}
+.hero h2{font-size:17px;line-height:1.2}
+.hero p{font-size:13px;margin-top:3px;opacity:.9}
+.wrap{padding:14px 16px}
+.section{display:none}
+.section.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.card h3{font-size:16px;margin-bottom:6px;color:var(--forest)}
+.card p{font-size:14px;line-height:1.5;color:#333}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.badge{display:inline-block;background:var(--forest);color:white;font-size:11px;font-weight:700;padding:4px 8px;border-radius:999px}
+.badge.gold{background:var(--gold);color:#1E3A2B}
+.badge.light{background:#F1E8C8;color:#5A4A00}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.filter{border:1px solid var(--line);background:white;padding:8px 11px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer}
+.filter.active{background:var(--forest);color:white;border-color:var(--forest)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer}
+.item-img{height:96px;display:flex;align-items:center;justify-content:center;font-size:44px;background:linear-gradient(135deg,#F7EDC9,#E8DCC0)}
+.item.locked .item-img{filter:grayscale(1) brightness(.72);position:relative}
+.item.locked .item-img:after{content:"🔒";position:absolute;font-size:18px;bottom:6px;right:8px;background:white;border-radius:999px;padding:2px 6px}
+.item-body{padding:10px}
+.item-body b{font-size:13px;line-height:1.2;display:block}
+.item-body span{font-size:12px;color:var(--muted)}
+.item-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.price{font-weight:800;color:var(--forest);font-size:13px}
+.rarity{font-size:11px;font-weight:700;padding:3px 6px;border-radius:999px;background:#EEF2E8}
+.collection-head{display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px}
+.collection-head h3{font-size:17px;color:var(--forest)}
+.progress{height:8px;background:#EDE3C2;border-radius:999px;overflow:hidden;margin:6px 0 2px}
+.progress i{display:block;height:100%;background:var(--gold)}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{text-align:left;padding:8px 6px;border-bottom:2px solid var(--line);color:var(--forest)}
+.table td{padding:8px 6px;border-bottom:1px solid #F0E8D0;vertical-align:top}
+.cmd{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #F0E8D0}
+.cmd code{background:var(--forest);color:white;padding:5px 8px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap}
+.cmd p{font-size:13px;line-height:1.4}
+.steps{counter-reset:step}
+.step{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #F0E8D0}
+.step-num{width:28px;height:28px;min-width:28px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#1E3A2B}
+.btn{display:block;text-align:center;background:var(--forest);color:white;padding:13px;border-radius:12px;font-weight:700;text-decoration:none;font-size:15px;margin-top:10px}
+.btn.gold{background:var(--gold);color:#1E3A2B}
+.btn.outline{background:white;color:var(--forest);border:2px solid var(--forest)}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+.listing{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #F0E8D0;align-items:center}
+.listing-emoji{width:48px;height:48px;border-radius:12px;background:#F7EDC9;display:flex;align-items:center;justify-content:center;font-size:24px}
+.rank{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #F0E8D0}
+.rank-num{width:30px;height:30px;border-radius:50%;background:var(--forest);color:white;display:flex;align-items:center;justify-content:center;font-weight:800}
+.rank-num.gold{background:var(--gold);color:#1E3A2B}
+nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--line);display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:20}
+nav button{flex:1;background:none;border:none;font-size:11px;color:#777;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 2px}
+nav button span{font-size:20px}
+nav button.active{color:var(--forest);font-weight:700}
+nav button.active span{filter:none}
+.note{background:#FFF3C4;border:1px dashed var(--gold2);border-radius:12px;padding:12px;font-size:13px;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+<h1>Fuori<span>Di</span>Game</h1>
+<p>Il gioco del gruppo — Caccia il Fuffa, colleziona, fai prestigio</p>
+<div class="topbar">
+<div class="pill">💰 <b>0</b> Soldi Bucati</div>
+<div class="pill">⭐ <b>0</b> Stelle</div>
+<div class="pill">🎒 <b>0/32</b> Oggetti</div>
+</div>
+</header>
+
+<div class="hero" id="heroFuffapp">
+<div class="hero-emoji">📱</div>
+<div><h2>Apri la miniapp con /fuffapp</h2><p>Scrivi <b>/fuffapp</b> nel gruppo e si apre qui, sulla sezione Fuffa. Ogni gioco avrà il suo comando.</p></div>
+</div>
+
+<div class="wrap">
+
+<!-- COLLEZIONI -->
+<div id="sec-collezioni" class="section active">
+<div class="card"><h3>🎯 Collezioni Fuffa</h3><p>Tocca un oggetto grigio per vedere come si rivela quando lo trovi. Per ora è solo da vedere, per giocare usa i comandi nel gruppo.</p><div class="small" style="margin-top:6px">Colleziona tutti gli oggetti di una collezione → fai Prestigio → prendi Stelle e Badge. Le Stelle danno +2% soldi a ogni ritrovamento.</div></div>
+<div class="filters" id="filters">
+<button class="filter active" data-f="all">Tutte</button>
+<button class="filter" data-f="Cianfrusaglie">Cianfrusaglie</button>
+<button class="filter" data-f="Tesori">Tesori</button>
+<button class="filter" data-f="Reliquie">Reliquie</button>
+<button class="filter" data-f="Natalizia">🎄 Natalizia</button>
+</div>
+<div id="collections"></div>
+<div class="card"><h3>⭐ Prestigio & Badge</h3>
+<table class="table"><tr><th>Collezione</th><th>Stelle</th><th>Badge</th></tr>
+<tr><td>Cianfrusaglie</td><td><b>1 ⭐</b></td><td>Spazzino della Strada → Cercatore → Re della Strada → Imperatore dei Tappi → Leggenda della Strada</td></tr>
+<tr><td>Tesori</td><td><b>3 ⭐</b></td><td>Cacciatore del Fuffa → Domatore → Predatore → Incubo → Leggenda del Fuffa</td></tr>
+<tr><td>Reliquie</td><td><b>5 ⭐</b></td><td>Custode delle Reliquie → Guardiano Antico → Maestro delle Reliquie → Re delle Reliquie → Divinità del Fuffa</td></tr>
+<tr><td>🎄 Natalizia</td><td>Badge speciale</td><td>Elfo Capo → Leggenda di Natale → Re del Natale</td></tr>
+</table>
+<p class="small" style="margin-top:8px">Prestigio cancella gli oggetti di quella collezione e ti dà Stelle + Badge. Es: <code>/prestigio Cianfrusaglie</code></p>
+</div>
+</div>
+
+<!-- ZAINO -->
+<div id="sec-zaino" class="section">
+<div class="card"><h3>🎒 Il tuo Zaino</h3><p>Qui vedrai tutti gli oggetti che hai trovato cacciando il Fuffa.</p><p class="small" style="margin-top:8px">Per ora anteprima. Nel gruppo usa <b>/zaino</b> per vedere il tuo zaino vero.</p></div>
+<div class="card"><h3>Esempio — come apparirà</h3><div class="grid" id="zainoDemo"></div></div>
+<div class="note">💡 <b>Doppione?</b> Se trovi un oggetto che hai già, prendi solo i Soldi Bucati. Se è nuovo, completi la collezione!</div>
+</div>
+
+<!-- BANCARELLA -->
+<div id="sec-bancarella" class="section">
+<div class="card"><h3>🏪 Bancarella</h3><p>Compra e vendi oggetti con gli altri giocatori. Nel gruppo: <b>/vendifuffa</b> per vendere, <b>/bancarella</b> per vedere, <b>/comprafuffa</b> per comprare.</p></div>
+<div class="card" id="bancarellaList"></div>
+</div>
+
+<!-- CLASSIFICA -->
+<div id="sec-classifica" class="section">
+<div class="card"><h3>🏆 Classifica Soldi Bucati</h3><p>Chi ha più Soldi Bucati vince. Nel gruppo: <b>/topfuffa</b></p></div>
+<div class="card" id="classificaList"></div>
+</div>
+
+<!-- ISTRUZIONI -->
+<div id="sec-istruzioni" class="section">
+<div class="card" style="background:var(--forest);color:white"><h3 style="color:white">📱 Apri la miniapp con /fuffapp</h3><p style="color:#EFEFEF">Scrivi <b>/fuffapp</b> nel gruppo e si apre questa miniapp sulla sezione Fuffa.<br><br>Ogni gioco avrà il suo comando: <b>/fuffapp</b> apre Fuffa, i prossimi giochi avranno il loro comando tipo <b>/nomegiocoapp</b> e apriranno la stessa miniapp ma sulla loro sezione. Stessi Soldi Bucati, stesse Stelle.</p></div>
+<div class="card"><h3>🎮 Come si gioca a Fuffa</h3>
+<div class="steps"><div class="step"><div class="step-num">1</div><div><b>Il Fuffa spawna da solo</b><br><span class="small">Dalle 6 alle 23 appare da solo nel gruppo, oppure scrivi /fuffa</span></div></div>
+<div class="step"><div class="step-num">2</div><div><b>Tocca “Caccia via il Fuffa!”</b><br><span class="small">Hai 5 minuti, se no scappa e non prendi niente</span></div></div>
+<div class="step"><div class="step-num">3</div><div><b>Vinci oggetto + Soldi Bucati</b><br><span class="small">Se è un doppione prendi solo soldi, se è nuovo completi la collezione</span></div></div>
+<div class="step"><div class="step-num">4</div><div><b>Colleziona tutto</b><br><span class="small">Completa una collezione per fare Prestigio</span></div></div>
+<div class="step"><div class="step-num">5</div><div><b>Fai Prestigio</b><br><span class="small">Cancella gli oggetti di quella collezione e prendi Stelle + Badge</span></div></div>
+<div class="step"><div class="step-num">6</div><div><b>Le Stelle ti potenziano</b><br><span class="small">Ogni Stella = +2% soldi a ogni ritrovamento</span></div></div>
+</div></div>
+<div class="card"><h3>⌨️ Comandi</h3>
+<div class="cmd"><code>/fuffa</code><p>Fa apparire il Fuffa</p></div>
+<div class="cmd"><code>/fuffapp</code><p><b>Apre questa miniapp</b> sulla sezione Fuffa</p></div>
+<div class="cmd"><code>/zaino</code><p>I tuoi oggetti</p></div>
+<div class="cmd"><code>/portafoglio</code><p>I tuoi soldi e stelle</p></div>
+<div class="cmd"><code>/collezioni</code><p>Progresso e badge</p></div>
+<div class="cmd"><code>/prestigio</code><p>Fai prestigio — es: /prestigio Cianfrusaglie</p></div>
+<div class="cmd"><code>/vendifuffa</code><p>Vendi un oggetto</p></div>
+<div class="cmd"><code>/bancarella</code><p>Vedi cosa c'è in vendita</p></div>
+<div class="cmd"><code>/comprafuffa</code><p>Compra in bancarella</p></div>
+<div class="cmd"><code>/topfuffa</code><p>Classifica</p></div>
+</div>
+<div class="card"><h3>📚 Le 4 Collezioni</h3><table class="table"><tr><th>Collezione</th><th>Stelle per Prestigio</th></tr><tr><td>Cianfrusaglie</td><td>1 ⭐</td></tr><tr><td>Tesori</td><td>3 ⭐</td></tr><tr><td>Reliquie</td><td>5 ⭐</td></tr><tr><td>🎄 Natalizia</td><td>Badge speciale, senza stelle</td></tr></table></div>
+<div class="note">Miniapp per ora solo da vedere. Per giocare usa i comandi nel gruppo.</div>
+</div>
+
+<!-- CREDITS -->
+<div id="sec-credits" class="section">
+<div class="card"><h3>❤️ FuoriDiGame</h3><p>Gioco creato per il gruppo, idea e gestione di NickMade.<br>Grazie a chi gioca e caccia il Fuffa ogni giorno!</p></div>
+<div class="card"><h3>👥 Team</h3>
+<p><b>NickMade</b> — Idea e gestione</p>
+<a class="btn" href="https://t.me/nick.made" target="_blank">✈️ Telegram @nick.made</a>
+<a class="btn outline" href="https://www.instagram.com/fuoridichat?utm_source=qr&vrfl=am9iOXFhMWFoZ3Iw" target="_blank">📸 Instagram @fuoridichat</a>
+<p style="margin-top:14px"><b>@IoSonoEtna</b> — Team / Supporto</p>
+<a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank">✈️ Telegram @IoSonoEtna</a>
+<p class="small" style="margin-top:10px">Hai un'idea per un nuovo gioco? Un bug? Scriveteci!</p>
+</div>
+<div class="card"><h3>ℹ️ Versione</h3><p>Miniapp v1 — solo da vedere<br>Fuffa v1<br>Prossimi giochi in arrivo…</p></div>
+<div class="card"><h3>🙏 Ringraziamenti</h3><p>Grazie a tutti i cacciatori di Fuffa. Senza di voi il Fuffa non scapperebbe così tanto.</p></div>
+</div>
+
+</div>
+
+<nav>
+<button data-tab="collezioni" class="active"><span>🗂️</span>Collezioni</button>
+<button data-tab="zaino"><span>🎒</span>Zaino</button>
+<button data-tab="bancarella"><span>🏪</span>Bancarella</button>
+<button data-tab="classifica"><span>🏆</span>Classifica</button>
+<button data-tab="istruzioni"><span>📖</span>Istruzioni</button>
+<button data-tab="credits"><span>❤️</span>Credits</button>
+</nav>
+
+<script>
+if(window.Telegram && Telegram.WebApp){try{Telegram.WebApp.ready();Telegram.WebApp.expand();}catch(e){}}
+const ITEMS=[
+{id:"tappo",name:"Tappo Arrugginito",coll:"Cianfrusaglie",emoji:"🍾",value:5,rarity:"Comune"},
+{id:"orologio",name:"Orologio Rotto",coll:"Cianfrusaglie",emoji:"⌚",value:8,rarity:"Comune"},
+{id:"chiave",name:"Chiave Senza Porta",coll:"Cianfrusaglie",emoji:"🗝️",value:6,rarity:"Comune"},
+{id:"calzino",name:"Calzino Spaiato",coll:"Cianfrusaglie",emoji:"🧦",value:4,rarity:"Comune"},
+{id:"moneta",name:"Moneta Bucata",coll:"Cianfrusaglie",emoji:"🪙",value:10,rarity:"Raro"},
+{id:"occhiali",name:"Occhiali Senza Lente",coll:"Cianfrusaglie",emoji:"👓",value:7,rarity:"Comune"},
+{id:"penna",name:"Penna Scarica",coll:"Cianfrusaglie",emoji:"🖊️",value:3,rarity:"Comune"},
+{id:"tazza",name:"Tazza Sbeccata",coll:"Cianfrusaglie",emoji:"☕",value:9,rarity:"Raro"},
+{id:"anello",name:"Anello Dorato",coll:"Tesori",emoji:"💍",value:35,rarity:"Raro"},
+{id:"collana",name:"Collana Brillante",coll:"Tesori",emoji:"📿",value:42,rarity:"Epico"},
+{id:"gemma",name:"Gemma Rossa",coll:"Tesori",emoji:"💎",value:50,rarity:"Epico"},
+{id:"corona",name:"Corona del Fuffa",coll:"Tesori",emoji:"👑",value:65,rarity:"Leggendario"},
+{id:"forziere",name:"Forziere Chiuso",coll:"Tesori",emoji:"🧰",value:30,rarity:"Raro"},
+{id:"mappa",name:"Mappa del Tesoro",coll:"Tesori",emoji:"🗺️",value:28,rarity:"Raro"},
+{id:"spada",name:"Spada Antica",coll:"Tesori",emoji:"🗡️",value:48,rarity:"Epico"},
+{id:"lingotto",name:"Lingotto d'Oro",coll:"Tesori",emoji:"🟨",value:55,rarity:"Epico"},
+{id:"amuleto",name:"Amuleto Antico",coll:"Reliquie",emoji:"🧿",value:90,rarity:"Epico"},
+{id:"pergamena",name:"Pergamena Sacra",coll:"Reliquie",emoji:"📜",value:110,rarity:"Leggendario"},
+{id:"statua",name:"Statua del Fuffa",coll:"Reliquie",emoji:"🗿",value:130,rarity:"Leggendario"},
+{id:"scettro",name:"Scettro del Re",coll:"Reliquie",emoji:"👑",value:150,rarity:"Mitico"},
+{id:"libro",name:"Libro Proibito",coll:"Reliquie",emoji:"📕",value:95,rarity:"Epico"},
+{id:"maschera",name:"Maschera Antica",coll:"Reliquie",emoji:"🎭",value:85,rarity:"Epico"},
+{id:"orologio2",name:"Clessidra Eterna",coll:"Reliquie",emoji:"⏳",value:120,rarity:"Leggendario"},
+{id:"cristallo",name:"Cristallo Magico",coll:"Reliquie",emoji:"🔮",value:140,rarity:"Mitico"},
+{id:"pallina",name:"Pallina di Natale",coll:"Natalizia",emoji:"🎄",value:25,rarity:"Raro"},
+{id:"cappello",name:"Cappello di Babbo",coll:"Natalizia",emoji:"🎅",value:30,rarity:"Raro"},
+{id:"regalo",name:"Regalo Misterioso",coll:"Natalizia",emoji:"🎁",value:40,rarity:"Epico"},
+{id:"fiocco",name:"Fiocco di Neve",coll:"Natalizia",emoji:"❄️",value:35,rarity:"Epico"},
+{id:"stella",name:"Stella di Natale",coll:"Natalizia",emoji:"⭐",value:60,rarity:"Leggendario"},
+{id:"renna",name:"Renna di Peluche",coll:"Natalizia",emoji:"🦌",value:28,rarity:"Raro"},
+{id:"candela",name:"Candela Magica",coll:"Natalizia",emoji:"🕯️",value:22,rarity:"Comune"},
+{id:"biscotto",name:"Biscotto di Pan di Zenzero",coll:"Natalizia",emoji:"🍪",value:18,rarity:"Comune"},
+];
+let owned=new Set(["tappo","anello"]);
+let curFilter="all";
+function renderCollections(){
+  const wrap=document.getElementById("collections");
+  const groups=["Cianfrusaglie","Tesori","Reliquie","Natalizia"];
+  let html="";
+  groups.forEach(g=>{
+    if(curFilter!=="all" && curFilter!==g) return;
+    const list=ITEMS.filter(i=>i.coll===g);
+    const have=list.filter(i=>owned.has(i.id)).length;
+    const pct=Math.round(have/list.length*100);
+    html+=`<div class="collection-head"><h3>${g==="Natalizia"?"🎄 ":""}${g}</h3><span class="badge ${g==="Natalizia"?"gold":""}">${have}/${list.length}</span></div><div class="progress"><i style="width:${pct}%"></i></div><div class="small">${pct}% completato • Prestigio: ${g==="Cianfrusaglie"?"1 ⭐":g==="Tesori"?"3 ⭐":g==="Reliquie"?"5 ⭐":"Badge speciale"}</div><div class="grid" style="margin-top:10px">`;
+    list.forEach(it=>{
+      const locked=!owned.has(it.id);
+      html+=`<div class="item ${locked?"locked":""}" onclick="toggleItem('${it.id}')"><div class="item-img">${it.emoji}</div><div class="item-body"><b>${it.name}</b><span>${it.coll}</span><div class="item-foot"><span class="price">${it.value} 💰</span><span class="rarity">${it.rarity}</span></div></div></div>`;
+    });
+    html+=`</div>`;
+  });
+  wrap.innerHTML=html;
+}
+function toggleItem(id){ if(owned.has(id)) owned.delete(id); else owned.add(id); renderCollections(); renderZaino(); }
+function renderZaino(){
+  const el=document.getElementById("zainoDemo");
+  const list=ITEMS.filter(i=>owned.has(i.id));
+  if(list.length===0){el.innerHTML="<p class='small'>Zaino vuoto — caccia il Fuffa!</p>";return;}
+  el.innerHTML=list.map(it=>`<div class="item"><div class="item-img">${it.emoji}</div><div class="item-body"><b>${it.name}</b><span>${it.coll}</span><div class="item-foot"><span class="price">${it.value} 💰</span><span class="rarity">${it.rarity}</span></div></div></div>`).join("");
+}
+document.getElementById("bancarellaList").innerHTML=[
+  {emoji:"💍",name:"Anello Dorato",price:40,seller:"@Giocatore1"},
+  {emoji:"🪙",name:"Moneta Bucata",price:12,seller:"@Giocatore2"},
+  {emoji:"🎁",name:"Regalo Misterioso",price:55,seller:"@IoSonoEtna"},
+].map(l=>`<div class="listing"><div class="listing-emoji">${l.emoji}</div><div style="flex:1"><b>${l.name}</b><br><span class="small">da ${l.seller}</span></div><b>${l.price} 💰</b></div>`).join("")+`<p class="small" style="margin-top:8px">Anteprima — nel gruppo usa /bancarella per vedere quelle vere.</p>`;
+document.getElementById("classificaList").innerHTML=[
+  {name:"NickMade",pts:1240},{name:"@IoSonoEtna",pts:980},{name:"@Giocatore1",pts:720},{name:"@Giocatore2",pts:540},{name:"@Giocatore3",pts:310}
+].map((u,i)=>`<div class="rank"><div class="rank-num ${i===0?"gold":""}">${i+1}</div><div style="flex:1"><b>${u.name}</b></div><b>${u.pts} 💰</b></div>`).join("");
+function showTab(tab){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  const sec=document.getElementById("sec-"+tab);
+  if(sec) sec.classList.add("active");
+  const btn=document.querySelector(`nav button[data-tab="${tab}"]`);
+  if(btn) btn.classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+document.querySelectorAll("#filters .filter").forEach(f=>f.addEventListener("click",()=>{
+  document.querySelectorAll("#filters .filter").forEach(x=>x.classList.remove("active"));
+  f.classList.add("active"); curFilter=f.dataset.f; renderCollections();
+}));
+renderCollections(); renderZaino();
+const params=new URLSearchParams(location.search);
+let sec=params.get("section")||params.get("startapp")||"";
+if(!sec && location.hash) sec=location.hash.replace("#","");
+if(sec==="fuffa"||sec==="fuffapp") showTab("collezioni");
+if(sec==="zaino"||sec==="bancarella"||sec==="classifica"||sec==="istruzioni"||sec==="credits") showTab(sec);
+</script>
+</body>
+</html>
