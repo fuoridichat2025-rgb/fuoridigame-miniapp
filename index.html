@@ -261,7 +261,7 @@ function renderCollections(){
     html+=`<div class="collection-head"><h3>${g==="Natalizia"?"🎄 ":""}${g}</h3><span class="badge ${g==="Natalizia"?"gold":""}">${have}/${list.length}</span></div><div class="progress"><i style="width:${pct}%"></i></div><div class="small">${pct}% completato • Prestigio: ${g==="Cianfrusaglie"?"1 ⭐":g==="Tesori"?"3 ⭐":g==="Reliquie"?"5 ⭐":"Badge speciale"}</div><div class="grid" style="margin-top:10px">`;
     list.forEach(it=>{
       const locked=!owned.has(it.id);
-      html+=`<div class="item ${locked?"locked":""}" onclick="toggleItem('${it.id}')"><div class="item-img">${it.image && !it.image.includes("POSTIMG") ? `<img src="${it.image}" style="width:100%;height:100%;object-fit:cover;border-radius:0">` : it.emoji}</div><div class="item-body"><b>${it.name}</b><span>${it.coll}</span><div class="item-foot"><span class="price">${it.value} 💰</span><span class="rarity">${it.rarity}</span></div></div></div>`;
+      html+=`<div class="item ${locked?"locked":""}" onclick="toggleItem('${it.id}')"><div class="item-img">${it.image && !it.image.includes("POSTIMG") ? `<img src="${it.image}" style="width:100%;height:100%;object-fit:cover">` : it.emoji}</div><div class="item-body"><b>${it.name}</b><span>${it.coll}</span><div class="item-foot"><span class="price">${it.value} 💰</span><span class="rarity">${it.rarity}</span></div></div></div>`;
     });
     html+=`</div>`;
   });
@@ -272,7 +272,7 @@ function renderZaino(){
   const el=document.getElementById("zainoDemo");
   const list=ITEMS.filter(i=>owned.has(i.id));
   if(list.length===0){el.innerHTML="<p class='small'>Zaino vuoto — caccia il Fuffa!</p>";return;}
-  el.innerHTML=list.map(it=>`<div class="item"><div class="item-img">${it.image && !it.image.includes("POSTIMG") ? `<img src="${it.image}" style="width:100%;height:100%;object-fit:cover;border-radius:0">` : it.emoji}</div><div class="item-body"><b>${it.name}</b><span>${it.coll}</span><div class="item-foot"><span class="price">${it.value} 💰</span><span class="rarity">${it.rarity}</span></div></div></div>`).join("");
+  el.innerHTML=list.map(it=>`<div class="item"><div class="item-img">${it.image && !it.image.includes("POSTIMG") ? `<img src="${it.image}" style="width:100%;height:100%;object-fit:cover">` : it.emoji}</div><div class="item-body"><b>${it.name}</b><span>${it.coll}</span><div class="item-foot"><span class="price">${it.value} 💰</span><span class="rarity">${it.rarity}</span></div></div></div>`).join("");
 }
 document.getElementById("bancarellaList").innerHTML=[
   {emoji:"💍",name:"Anello Finto Dorato",price:40,seller:"@Giocatore1"},
