@@ -109,7 +109,6 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 .rank{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #F0E8D0}
 .rank-num{width:30px;height:30px;border-radius:50%;background:var(--forest);color:white;display:flex;align-items:center;justify-content:center;font-weight:800}
 .rank-num.gold{background:var(--gold);color:#1E3A2B}
-
 .game-switch{display:flex;gap:8px;margin:12px 16px 0}
 .game-switch button{flex:1;border:2px solid var(--forest);background:white;color:var(--forest);padding:12px;border-radius:14px;font-weight:800;font-size:15px;cursor:pointer}
 .game-switch button.active{background:var(--forest);color:white}
@@ -127,6 +126,7 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <h1>Fuori<span>Di</span>Game</h1>
 <p id="header-sub-fuffa">Il gioco del gruppo — Caccia il Fuffa, colleziona, fai prestigio</p>
 <p id="header-sub-minigame" style="display:none">Il gioco del gruppo — Quiz ogni ora, vinci punti</p>
+<p id="header-sub-messaggi" style="display:none">Il gioco del gruppo — Chi scrive di più, badge che restano</p>
 <div class="topbar" id="topbar-fuffa">
 <div class="pill">💰 <b id="pill-soldi">0</b> Soldi Bucati</div>
 <div class="pill">⭐ <b id="pill-stelle">0</b> Stelle</div>
@@ -138,10 +138,17 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <div class="pill">🏆 <b id="pill-vinte">0</b> Vinte</div>
 <div class="pill">📊 <b id="pill-pos">-</b> Posizione</div>
 </div>
+<div class="topbar" id="topbar-messaggi" style="display:none">
+<div class="pill">💬 <b id="pill-miei-msg">0</b> Miei messaggi</div>
+<div class="pill">🏆 <b id="pill-pos-msg">-</b> Posizione</div>
+<div class="pill">🎖️ <b id="pill-badge">0</b> Badge</div>
+<div class="pill">👥 <b id="pill-messaggi">0</b> Totale gruppo</div>
+</div>
 </header>
 <div class="game-switch">
 <button id="btn-gioco-fuffa" class="active" onclick="switchGame('fuffa')">🥾 Fuffa<small>Collezioni • Zaino • Bancarella</small></button>
 <button id="btn-gioco-minigame" onclick="switchGame('minigame')">🎮 Minigame<small>Quiz • Classifica • Punti</small></button>
+<button id="btn-gioco-messaggi" onclick="switchGame('messaggi')">💬 Messaggi<small>Chi scrive di più • Badge</small></button>
 </div>
 
 <div class="hero" id="hero-fuffa">
@@ -151,6 +158,10 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <div class="hero" id="hero-minigame" style="display:none">
 <div class="hero-emoji">🎮</div>
 <div><h2>Minigame — ogni ora in punto</h2><p>Bandiere, capitali, emoji, trivia, calcoli, parole. Scrivi <b>/classificaflash</b> nel gruppo per la Top 10.</p></div>
+</div>
+<div class="hero" id="hero-messaggi" style="display:none">
+<div class="hero-emoji">💬</div>
+<div><h2>Messaggi — chi scrive di più vince</h2><p>Ogni messaggio conta, anche gif e sticker. Ogni sera alle 00:05 arriva la classifica di ieri. Scrivi <b>/topmsg</b> nel gruppo per la classifica.</p></div>
 </div>
 
 <div class="wrap">
@@ -243,7 +254,6 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 
 </div>
 
-
 <!-- MINIGAME - CLASSIFICA -->
 <div id="sec-minigame-classifica" class="section" data-gioco="minigame">
 <div class="card"><h3>🎮 Minigame — Classifica completa</h3><p>Bandiere, capitali, emoji, trivia, calcoli, parole. Ogni ora in punto nel gruppo. Ogni vittoria = <b>+10 punti</b>.</p><p class="small" style="margin-top:6px">Nel gruppo: <b>/classificaflash</b> per la Top 10, ogni sera alle 23:12 arriva la classifica della sera.</p></div>
@@ -281,6 +291,73 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <div class="card"><h3>🙏 Ringraziamenti</h3><p>Grazie a tutti i giocatori di Minigame. Senza di voi non ci sarebbe gara.</p><p>Grazie a etna perché rende tutto possibile.</p></div>
 </div>
 
+<!-- MESSAGGI - CLASSIFICA -->
+<div id="sec-messaggi-classifica" class="section" data-gioco="messaggi">
+<div class="card"><h3>💬 Messaggi — Classifica</h3><p>Ogni messaggio conta, anche gif, sticker, foto, vocali. Antiflood 3 secondi: se scrivi troppo in fretta conta solo 1.</p><p class="small" style="margin-top:6px">Totale gruppo dal 3 giugno 2025. Ogni notte alle 00:05 arriva la classifica di ieri nel gruppo.</p></div>
+<div class="card"><h3>🔍 Filtra</h3><div class="filters">
+<button class="filter msg-filter active" data-msgf="totale">🏆 Totali</button>
+<button class="filter msg-filter" data-msgf="oggi">📅 Oggi</button>
+<button class="filter msg-filter" data-msgf="settimana">📆 Settimana</button>
+<button class="filter msg-filter" data-msgf="mese">🗓️ Mese</button>
+</div></div>
+<div class="card" id="messaggiMio"><p class="small">Apri da /fuffapp nel gruppo per vedere i tuoi messaggi.</p></div>
+<div class="card" id="messaggiList"></div>
+<div class="card" id="messaggiBadge"><h3>🎖️ Badge — restano per sempre</h3>
+<table class="table"><tr><th>Badge</th><th>Come si prende</th></tr>
+<tr><td>🗣️ Chiacchierone</td><td>1.000 messaggi totali</td></tr>
+<tr><td>💬 Parlante Seriale</td><td>2.500 messaggi totali</td></tr>
+<tr><td>🔥 Fucina di Parole</td><td>5.000 messaggi totali</td></tr>
+<tr><td>📢 Megafono Umano</td><td>10.000 messaggi totali</td></tr>
+<tr><td>🌪️ Uragano di Parole</td><td>20.000 messaggi totali</td></tr>
+<tr><td>👑 Re della Tastiera</td><td>30.000 messaggi totali</td></tr>
+<tr><td>💎 Diamante della Chat</td><td>50.000 messaggi totali</td></tr>
+<tr><td>🏆 Leggenda della Chat</td><td>75.000 messaggi totali</td></tr>
+<tr><td>👑👑 Imperatore della Chat</td><td>100.000 messaggi totali</td></tr>
+<tr><td>🌟 Dio della Chat</td><td>150.000 messaggi totali</td></tr>
+<tr><td>👑 Re della Settimana</td><td>Vinci 1 settimana</td></tr>
+<tr><td>🔥 Dominatore della Settimana</td><td>Vinci 3 settimane</td></tr>
+<tr><td>⚡ Leggenda della Settimana</td><td>Vinci 5 settimane</td></tr>
+<tr><td>👑👑 Imperatore della Settimana</td><td>Vinci 10 settimane</td></tr>
+<tr><td>🌙 Re del Mese</td><td>Vinci 1 mese</td></tr>
+<tr><td>💎 Imperatore del Mese</td><td>Vinci 3 mesi</td></tr>
+<tr><td>🏆 Leggenda del Mese</td><td>Vinci 6 mesi</td></tr>
+<tr><td>🌟 Dio della Chat</td><td>Vinci 12 mesi</td></tr>
+</table>
+<p class="small" style="margin-top:8px">Vedi i tuoi con <b>/miebadge</b> nel gruppo.</p></div>
+</div>
+<!-- MESSAGGI - ISTRUZIONI -->
+<div id="sec-istruzioni-messaggi" class="section" data-gioco="messaggi">
+<div class="card" style="background:var(--forest);color:white"><h3 style="color:white">📱 Apri la miniapp con /fuffapp</h3><p style="color:#EFEFEF">Scrivi <b>/fuffapp</b> nel gruppo e si apre questa miniapp. In alto scegli <b>Messaggi</b> per vedere questa sezione.</p></div>
+<div class="card"><h3>💬 Come si gioca a Messaggi</h3>
+<div class="steps"><div class="step"><div class="step-num">1</div><div><b>Scrivi nel gruppo</b><br><span class="small">Ogni messaggio conta, non devi fare niente</span></div></div>
+<div class="step"><div class="step-num">2</div><div><b>Contano anche gif, sticker, foto, vocali</b><br><span class="small">Non solo testo</span></div></div>
+<div class="step"><div class="step-num">3</div><div><b>Antiflood 3 secondi</b><br><span class="small">Se scrivi 10 messaggi in 3 secondi ne conta 1</span></div></div>
+<div class="step"><div class="step-num">4</div><div><b>Classifica ogni notte</b><br><span class="small">Alle 00:05 arriva la classifica di ieri + congratulazioni al vincitore. Il lunedì vincitore settimana, il 1° vincitore mese.</span></div></div>
+</div></div>
+<div class="card"><h3>⌨️ Comandi Messaggi</h3>
+<div class="cmd"><code>/topmsg</code><p>Classifica Messaggi con bottoni Totali / Oggi / Settimana / Mese</p></div>
+<div class="cmd"><code>/iomsg</code><p>I tuoi messaggi: totale, oggi, settimana, mese</p></div>
+<div class="cmd"><code>/miebadge</code><p>I tuoi badge</p></div>
+<div class="cmd"><code>/messaggiapp</code><p>Apre questa miniapp sulla sezione Messaggi</p></div>
+<div class="cmd"><code>/giochi</code><p>Attiva/disattiva giochi — <b>solo admin del gruppo</b></p></div>
+</div>
+<div class="note">Chi era già nel gruppo prima del 13 novembre 2026 parte da 500 messaggi al primo messaggio valido. Chi entra da dopo parte da 0.</div>
+</div>
+<!-- MESSAGGI - CREDITS -->
+<div id="sec-credits-messaggi" class="section" data-gioco="messaggi">
+<div class="card"><h3>❤️ FuoriDiGame — Messaggi</h3><p>Gioco creato per i gruppi Telegram, idea e gestione di Made & Etna.<br>Grazie di cuore a chi scrive ogni giorno!</p></div>
+<div class="card"><h3>👥 Team</h3>
+<p><b>Made</b> — Idea e gestione</p>
+<a class="btn" href="https://t.me/nick.made" target="_blank">✈️ Telegram @nick.made</a>
+<a class="btn outline" href="https://www.instagram.com/fuoridichat?utm_source=qr&vrfl=am9iOXFhMWFoZ3Iw" target="_blank">📸 Instagram @fuoridichat</a>
+<p style="margin-top:14px"><b>@IoSonoEtna</b> — Team / Supporto</p>
+<a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank">✈️ Telegram @IoSonoEtna</a>
+<p class="small" style="margin-top:10px">Hai un'idea per un nuovo gioco? Un bug? Scriveteci!</p>
+</div>
+<div class="card"><h3>ℹ️ Versione</h3><p>Miniapp v1 — solo da vedere<br>Messaggi v1<br>Prossimi giochi in arrivo…</p></div>
+<div class="card"><h3>🙏 Ringraziamenti</h3><p>Grazie a tutti quelli che scrivono. Senza di voi la chat sarebbe muta.</p><p>Grazie a etna perché rende tutto possibile.</p></div>
+</div>
+
 <nav class="subnav" id="nav-fuffa">
 <button data-tab="collezioni" class="active"><span>🗂️</span>Collezioni</button>
 <button data-tab="zaino"><span>🎒</span>Zaino</button>
@@ -293,6 +370,11 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <button data-tab="minigame-classifica" class="active"><span>🏆</span>Classifica</button>
 <button data-tab="istruzioni-minigame"><span>📖</span>Istruzioni</button>
 <button data-tab="credits-minigame"><span>❤️</span>Credits</button>
+</nav>
+<nav class="subnav" id="nav-messaggi" style="display:none">
+<button data-tab="messaggi-classifica" class="active"><span>🏆</span>Classifica</button>
+<button data-tab="istruzioni-messaggi"><span>📖</span>Istruzioni</button>
+<button data-tab="credits-messaggi"><span>❤️</span>Credits</button>
 </nav>
 
 <script>
@@ -392,6 +474,63 @@ function renderMinigame(){
   if(!DatiMinigame || DatiMinigame.length===0){ el.innerHTML=`<p class="small">Ancora nessuno in classifica Minigame. Aspetta le :00 nel gruppo!</p>`; return; }
   el.innerHTML=`<h3 style="margin-bottom:8px">🏆 Classifica Minigame - completa</h3>`+DatiMinigame.map((u,i)=>`<div class="rank"><div class="rank-num ${i===0?"gold":""}">${i+1}</div><div style="flex:1"><b>${u.display_name}</b></div><b>${u.punti} punti</b><span class="small" style="margin-left:6px">${u.vinte} vinte</span></div>`).join("");
 }
+// ===== MESSAGGI - SOLO QUESTO AGGIUNTO =====
+let DatiMessaggi=[]; let MioMessaggi=null; let FiltroMessaggi="totale"; let TotaleGruppoMsg=0;
+function valoreMsg(u){
+  if(FiltroMessaggi==="oggi") return u.oggi||0;
+  if(FiltroMessaggi==="settimana") return u.settimana||0;
+  if(FiltroMessaggi==="mese") return u.mese||u.totale||0;
+  return u.totale||0;
+}
+function renderMessaggi(){
+  const el=document.getElementById("messaggiList");
+  const mio=document.getElementById("messaggiMio");
+  if(!el) return;
+  const ordinati=[...DatiMessaggi].sort((a,b)=>valoreMsg(b)-valoreMsg(a));
+  if(MioMessaggi){
+    const mioVal = MioMessaggi.totale||MioMessaggi.mio?.totale||0;
+    const mioOggi = MioMessaggi.oggi||MioMessaggi.mio?.oggi||0;
+    const mioSett = MioMessaggi.settimana||MioMessaggi.mio?.settimana||0;
+    const badge = MioMessaggi.badge||MioMessaggi.mio?.badge||[];
+    const pos = ordinati.findIndex(x=>String(x.user_id)===String(MioMessaggi.user_id||MioMessaggi.mio?.user_id));
+    mio.innerHTML=`<h3>📊 I tuoi messaggi</h3><p>Totale: <b>${Number(mioVal).toLocaleString("it-IT")}</b> 💬 • Oggi: <b>${mioOggi}</b> • Settimana: <b>${mioSett}</b>${pos>=0?` • Posizione: <b>#${pos+1}</b>`:""}</p>${badge && badge.length?`<p class="small" style="margin-top:6px">🎖️ ${badge.map(b=>b.emoji+" "+b.nome).join(" • ")}</p>`:""}`;
+    document.getElementById("pill-miei-msg").textContent=Number(mioVal).toLocaleString("it-IT");
+    if(pos>=0) document.getElementById("pill-pos-msg").textContent="#"+(pos+1);
+    if(badge) document.getElementById("pill-badge").textContent=badge.length;
+  }
+  if(TotaleGruppoMsg) document.getElementById("pill-messaggi").textContent=Number(TotaleGruppoMsg).toLocaleString("it-IT");
+  if(!ordinati || ordinati.length===0){ el.innerHTML=`<p class="small">Ancora nessuno in classifica Messaggi. Scrivi nel gruppo!</p>`; return; }
+  const titolo = FiltroMessaggi==="oggi"?"📅 Oggi":FiltroMessaggi==="settimana"?"📆 Settimana":FiltroMessaggi==="mese"?"🗓️ Mese":"🏆 Totali";
+  el.innerHTML=`<h3 style="margin-bottom:8px">${titolo} — Classifica Messaggi</h3>`+ordinati.map((u,i)=>{
+    const val=valoreMsg(u);
+    const nome=u.display_name||u.username||("Utente "+String(u.user_id).slice(-4));
+    const badgeTxt=u.badge && u.badge.length?` • ${u.badge.map(b=>b.emoji).join("")}`:"";
+    return `<div class="rank"><div class="rank-num ${i===0?"gold":""}">${i+1}</div><div style="flex:1"><b>${nome}</b>${badgeTxt}</div><b>${Number(val).toLocaleString("it-IT")} 💬</b></div>`;
+  }).join("");
+}
+async function caricaMessaggi(){
+  try{
+    const params=new URLSearchParams(location.search);
+    let group_id=params.get("group_id")||"";
+    let user_id="";
+    let tg=null;
+    try{ tg=window.Telegram && Telegram.WebApp ? Telegram.WebApp.initDataUnsafe : null; }catch(e){}
+    if(tg && tg.user) user_id=String(tg.user.id);
+    if(!user_id) user_id=params.get("user_id")||"";
+    if(!group_id && tg && tg.chat) group_id=String(tg.chat.id||"");
+    if(!group_id) return;
+    const r=await fetch(API_BASE+"/api/messaggi?group_id="+encodeURIComponent(group_id)).then(x=>x.json()).catch(()=>null);
+    if(r && r.ok){ DatiMessaggi=r.classifica||[]; if(r.totale_gruppo) TotaleGruppoMsg=r.totale_gruppo; renderMessaggi(); }
+    if(user_id){
+      const r2=await fetch(API_BASE+"/api/mio-messaggi?group_id="+encodeURIComponent(group_id)+"&user_id="+encodeURIComponent(user_id)).then(x=>x.json()).catch(()=>null);
+      if(r2 && r2.ok){ MioMessaggi=r2.mio||r2; if(r2.totale_gruppo) TotaleGruppoMsg=r2.totale_gruppo; renderMessaggi(); }
+    }
+  }catch(e){}
+}
+document.querySelectorAll(".msg-filter").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".msg-filter").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); FiltroMessaggi=b.dataset.msgf; renderMessaggi();
+}));
 function showTab(tab){
   document.querySelectorAll(".section").forEach(sec=>sec.classList.remove("active"));
   document.querySelectorAll(".subnav button").forEach(b=>b.classList.remove("active"));
@@ -405,17 +544,23 @@ function switchGame(gioco, tabForzato){
   giocoAttivo=gioco;
   document.getElementById("btn-gioco-fuffa").classList.toggle("active", gioco==="fuffa");
   document.getElementById("btn-gioco-minigame").classList.toggle("active", gioco==="minigame");
+  document.getElementById("btn-gioco-messaggi").classList.toggle("active", gioco==="messaggi");
   document.getElementById("header-sub-fuffa").style.display = gioco==="fuffa" ? "" : "none";
   document.getElementById("header-sub-minigame").style.display = gioco==="minigame" ? "" : "none";
+  document.getElementById("header-sub-messaggi").style.display = gioco==="messaggi" ? "" : "none";
   document.getElementById("topbar-fuffa").style.display = gioco==="fuffa" ? "flex" : "none";
   document.getElementById("topbar-minigame").style.display = gioco==="minigame" ? "flex" : "none";
+  document.getElementById("topbar-messaggi").style.display = gioco==="messaggi" ? "flex" : "none";
   document.getElementById("hero-fuffa").style.display = gioco==="fuffa" ? "flex" : "none";
   document.getElementById("hero-minigame").style.display = gioco==="minigame" ? "flex" : "none";
+  document.getElementById("hero-messaggi").style.display = gioco==="messaggi" ? "flex" : "none";
   document.getElementById("nav-fuffa").style.display = gioco==="fuffa" ? "flex" : "none";
   document.getElementById("nav-minigame").style.display = gioco==="minigame" ? "flex" : "none";
+  document.getElementById("nav-messaggi").style.display = gioco==="messaggi" ? "flex" : "none";
   if(tabForzato) showTab(tabForzato);
   else if(gioco==="fuffa") showTab("collezioni");
-  else showTab("minigame-classifica");
+  else if(gioco==="minigame") showTab("minigame-classifica");
+  else showTab("messaggi-classifica");
 }
 document.querySelectorAll(".subnav button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
 async function caricaMinigame(){
@@ -481,10 +626,14 @@ if(!sec && location.hash) sec=location.hash.replace("#","");
 if(sec==="minigame"||sec==="classificaflash"||sec==="flash"||sec==="minigame-classifica") switchGame("minigame","minigame-classifica");
 else if(sec==="istruzioni-minigame") switchGame("minigame","istruzioni-minigame");
 else if(sec==="credits-minigame") switchGame("minigame","credits-minigame");
+else if(sec==="messaggi"||sec==="messaggi-classifica"||sec==="topmsg") switchGame("messaggi","messaggi-classifica");
+else if(sec==="istruzioni-messaggi") switchGame("messaggi","istruzioni-messaggi");
+else if(sec==="credits-messaggi") switchGame("messaggi","credits-messaggi");
 else if(sec==="credits"||sec==="credits-fuffa") switchGame("fuffa","credits-fuffa");
 else if(sec==="zaino"||sec==="bancarella"||sec==="classifica"||sec==="istruzioni") switchGame("fuffa",sec);
 else switchGame("fuffa","collezioni");
 caricaMinigame(); renderMinigame();
+caricaMessaggi(); renderMessaggi();
 </script>
-<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</body>
 </html>
