@@ -1,51 +1,10 @@
 <!DOCTYPE html>
 <html lang="it">
-<head><style>
-@font-face {
-  font-family: "Optimistic";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Optimistic Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
-}
-:where(html) {
-  font-family: "Optimistic", system-ui, sans-serif;
-}
-:where(code, pre, kbd, samp) {
-  font-family: "Optimistic Mono", ui-monospace, monospace;
-}
-</style><style>
-@font-face {
-  font-family: "Optimistic";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Optimistic Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
-}
-:where(html) {
-  font-family: "Optimistic", system-ui, sans-serif;
-}
-:where(code, pre, kbd, samp) {
-  font-family: "Optimistic Mono", ui-monospace, monospace;
-}
-</style>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>FuoriDiGame - Miniapp Fuffa</title>
+<meta name="theme-color" content="#1E3A2B">
+<title>FuoriDiGame - Miniapp</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -58,6 +17,8 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 .topbar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:white;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:600}
 .pill b{color:var(--gold)}
+.header-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.close-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:white;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
 .hero{margin:14px 16px 0;background:var(--gold);border-radius:16px;padding:14px;color:#1E3A2B;display:flex;gap:12px;align-items:center}
 .hero-emoji{font-size:32px}
 .hero h2{font-size:17px;line-height:1.2}
@@ -77,7 +38,8 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 .filter.active{background:var(--forest);color:white;border-color:var(--forest)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .item{background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer}
-.item-img{height:96px;display:flex;align-items:center;justify-content:center;font-size:44px;background:linear-gradient(135deg,#F7EDC9,#E8DCC0)}
+.item-img{height:96px;display:flex;align-items:center;justify-content:center;font-size:44px;background:linear-gradient(135deg,#F7EDC9,#E8DCC0);overflow:hidden}
+.item-img img{width:100%;height:100%;object-fit:cover}
 .item.locked .item-img{filter:grayscale(1) brightness(.72);position:relative}
 .item.locked .item-img:after{content:"🔒";position:absolute;font-size:18px;bottom:6px;right:8px;background:white;border-radius:999px;padding:2px 6px}
 .item-body{padding:10px}
@@ -102,12 +64,14 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 .btn{display:block;text-align:center;background:var(--forest);color:white;padding:13px;border-radius:12px;font-weight:700;text-decoration:none;font-size:15px;margin-top:10px}
 .btn.gold{background:var(--gold);color:#1E3A2B}
 .btn.outline{background:white;color:var(--forest);border:2px solid var(--forest)}
+.btn-small{display:inline-block;background:var(--forest);color:white;padding:8px 12px;border-radius:999px;font-size:13px;font-weight:700;border:none;cursor:pointer}
+.btn-small.outline{background:white;color:var(--forest);border:1px solid var(--forest)}
 .row{display:flex;gap:10px}
 .row>*{flex:1}
 .listing{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #F0E8D0;align-items:center}
 .listing-emoji{width:48px;height:48px;border-radius:12px;background:#F7EDC9;display:flex;align-items:center;justify-content:center;font-size:24px}
 .rank{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #F0E8D0}
-.rank-num{width:30px;height:30px;border-radius:50%;background:var(--forest);color:white;display:flex;align-items:center;justify-content:center;font-weight:800}
+.rank-num{width:30px;height:30px;border-radius:50%;background:var(--forest);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;min-width:30px}
 .rank-num.gold{background:var(--gold);color:#1E3A2B}
 .game-switch{display:flex;gap:8px;margin:12px 16px 0}
 .game-switch button{flex:1;border:2px solid var(--forest);background:white;color:var(--forest);padding:12px;border-radius:14px;font-weight:800;font-size:15px;cursor:pointer}
@@ -123,10 +87,15 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 </head>
 <body>
 <header>
+<div class="header-row">
+<div>
 <h1>Fuori<span>Di</span>Game</h1>
 <p id="header-sub-fuffa">Il gioco del gruppo — Caccia il Fuffa, colleziona, fai prestigio</p>
 <p id="header-sub-minigame" style="display:none">Il gioco del gruppo — Quiz ogni ora, vinci punti</p>
 <p id="header-sub-messaggi" style="display:none">Il gioco del gruppo — Chi scrive di più, badge che restano</p>
+</div>
+<button class="close-btn" onclick="closeMiniapp()">❌ Chiudi</button>
+</div>
 <div class="topbar" id="topbar-fuffa">
 <div class="pill">💰 <b id="pill-soldi">0</b> Soldi Bucati</div>
 <div class="pill">⭐ <b id="pill-stelle">0</b> Stelle</div>
@@ -177,7 +146,7 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <button class="filter" data-f="Natalizia">🎄 Natalizia</button>
 </div>
 <div id="collections"></div>
-<div class="card"><h3>⭐ Prestigio & Badge</h3>
+<div class="card"><h3>⭐ Prestigio &amp; Badge</h3>
 <table class="table"><tr><th>Collezione</th><th>Stelle</th><th>Badge</th></tr>
 <tr><td>Cianfrusaglie</td><td><b>1 ⭐</b></td><td>Spazzino della Strada → Cercatore → Re della Strada → Imperatore dei Tappi → Leggenda della Strada</td></tr>
 <tr><td>Tesori</td><td><b>3 ⭐</b></td><td>Cacciatore del Fuffa → Domatore → Predatore → Incubo → Leggenda del Fuffa</td></tr>
@@ -203,7 +172,7 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 
 <!-- CLASSIFICA -->
 <div id="sec-classifica" data-gioco="fuffa" class="section">
-<div class="card"><h3>🏆 Classifica Soldi Bucati</h3><p>Chi ha più Soldi Bucati vince. Nel gruppo: <b>/topfuffa</b></p></div>
+<div class="card"><h3>🏆 Classifica Soldi Bucati</h3><p>Chi ha più Soldi Bucati vince. Nel gruppo: <b>/topfuffa</b></p><button class="btn-small" onclick="caricaDatiVeri()">🔄 Aggiorna</button></div>
 <div class="card" id="classificaList"></div>
 </div>
 
@@ -239,24 +208,22 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 
 <!-- CREDITS -->
 <div id="sec-credits-fuffa" class="section" data-gioco="fuffa">
-<div class="card"><h3>❤️ FuoriDiGame — Fuffa</h3><p>Gioco creato per i gruppi Telegram, idea e gestione di Made & Etna.<br>Grazie a chi gioca e caccia il Fuffa ogni giorno!</p><p>Grazie Etna, per tutto ❤️</div>
+<div class="card"><h3>❤️ FuoriDiGame — Fuffa</h3><p>Gioco creato per i gruppi Telegram, idea e gestione di Made &amp; Etna.<br>Grazie a chi gioca e caccia il Fuffa ogni giorno!</p><p>Grazie Etna, per tutto ❤️</div>
 <div class="card"><h3>👥 Team</h3>
 <p><b>Made</b> — Idea e gestione</p>
-<a class="btn" href="https://t.me/nick.made" target="_blank">✈️ Telegram @nick.made</a>
-<a class="btn outline" href="https://www.instagram.com/fuoridichat?utm_source=qr&vrfl=am9iOXFhMWFoZ3Iw" target="_blank">📸 Instagram @fuoridichat</a>
+<a class="btn" href="https://t.me/nick.made" target="_blank" rel="noopener">✈️ Telegram @nick.made</a>
+<a class="btn outline" href="https://www.instagram.com/fuoridichat" target="_blank" rel="noopener">📸 Instagram @fuoridichat</a>
 <p style="margin-top:14px"><b>@IoSonoEtna</b> — Team / Supporto</p>
-<a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank">✈️ Telegram @IoSonoEtna</a>
+<a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank" rel="noopener">✈️ Telegram @IoSonoEtna</a>
 <p class="small" style="margin-top:10px">Hai un'idea per un nuovo gioco? Un bug? Scriveteci!</p>
 </div>
 <div class="card"><h3>ℹ️ Versione</h3><p>Miniapp v1 — solo da vedere<br>Fuffa v1<br>Prossimi giochi in arrivo…</p></div>
 <div class="card"><h3>🙏 Ringraziamenti</h3><p>Grazie a tutti i cacciatori di Fuffa. Senza di voi il Fuffa non scapperebbe così tanto.</p></div>
 </div>
 
-</div>
-
 <!-- MINIGAME - CLASSIFICA -->
 <div id="sec-minigame-classifica" class="section" data-gioco="minigame">
-<div class="card"><h3>🎮 Minigame — Classifica completa</h3><p>Bandiere, capitali, emoji, trivia, calcoli, parole. Ogni ora in punto nel gruppo. Ogni vittoria = <b>+10 punti</b>.</p><p class="small" style="margin-top:6px">Nel gruppo: <b>/classificaflash</b> per la Top 10, ogni sera alle 23:12 arriva la classifica della sera.</p></div>
+<div class="card"><h3>🎮 Minigame — Classifica completa</h3><p>Bandiere, capitali, emoji, trivia, calcoli, parole. Ogni ora in punto nel gruppo. Ogni vittoria = <b>+10 punti</b>.</p><p class="small" style="margin-top:6px">Nel gruppo: <b>/classificaflash</b> per la Top 10, ogni sera alle 23:12 arriva la classifica della sera.</p><button class="btn-small" onclick="caricaMinigame()">🔄 Aggiorna</button></div>
 <div class="card" id="minigameMio"><p class="small">Apri da /fuffapp nel gruppo per vedere la tua posizione.</p></div>
 <div class="card" id="minigameList"></div>
 </div>
@@ -278,13 +245,13 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 </div>
 <!-- MINIGAME - CREDITS -->
 <div id="sec-credits-minigame" class="section" data-gioco="minigame">
-<div class="card"><h3>❤️ FuoriDiGame — Minigame</h3><p>Gioco creato per i gruppi Telegram, idea e gestione di Made & Etna.<br>Grazie di cuore a chi gioca ogni giorno!</p></div>
+<div class="card"><h3>❤️ FuoriDiGame — Minigame</h3><p>Gioco creato per i gruppi Telegram, idea e gestione di Made &amp; Etna.<br>Grazie di cuore a chi gioca ogni giorno!</p></div>
 <div class="card"><h3>👥 Team</h3>
 <p><b>Made</b> — Idea e gestione</p>
-<a class="btn" href="https://t.me/nick.made" target="_blank">✈️ Telegram @nick.made</a>
-<a class="btn outline" href="https://www.instagram.com/fuoridichat?utm_source=qr&vrfl=am9iOXFhMWFoZ3Iw" target="_blank">📸 Instagram @fuoridichat</a>
+<a class="btn" href="https://t.me/nick.made" target="_blank" rel="noopener">✈️ Telegram @nick.made</a>
+<a class="btn outline" href="https://www.instagram.com/fuoridichat" target="_blank" rel="noopener">📸 Instagram @fuoridichat</a>
 <p style="margin-top:14px"><b>@IoSonoEtna</b> — Team / Supporto</p>
-<a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank">✈️ Telegram @IoSonoEtna</a>
+<a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank" rel="noopener">✈️ Telegram @IoSonoEtna</a>
 <p class="small" style="margin-top:10px">Hai un'idea per un nuovo gioco? Un bug? Scriveteci!</p>
 </div>
 <div class="card"><h3>ℹ️ Versione</h3><p>Miniapp v1 — solo da vedere<br>Minigame v1<br>Prossimi giochi in arrivo…</p></div>
@@ -293,7 +260,7 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 
 <!-- MESSAGGI - CLASSIFICA -->
 <div id="sec-messaggi-classifica" class="section" data-gioco="messaggi">
-<div class="card"><h3>💬 Messaggi — Classifica</h3><p>Ogni messaggio conta, anche gif, sticker, foto, vocali. Antiflood 3 secondi: se scrivi troppo in fretta conta solo 1.</p><p class="small" style="margin-top:6px">Totale gruppo dal 3 giugno 2025. Ogni notte alle 00:05 arriva la classifica di ieri nel gruppo.</p></div>
+<div class="card"><h3>💬 Messaggi — Classifica</h3><p>Ogni messaggio conta, anche gif, sticker, foto, vocali. Antiflood 3 secondi: se scrivi troppo in fretta conta solo 1.</p><p class="small" style="margin-top:6px">Totale gruppo dal 3 giugno 2025. Ogni notte alle 00:05 arriva la classifica di ieri nel gruppo.</p><button class="btn-small" onclick="caricaMessaggi()">🔄 Aggiorna</button></div>
 <div class="card"><h3>🔍 Filtra</h3><div class="filters">
 <button class="filter msg-filter active" data-msgf="totale">🏆 Totali</button>
 <button class="filter msg-filter" data-msgf="oggi">📅 Oggi</button>
@@ -345,17 +312,19 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 </div>
 <!-- MESSAGGI - CREDITS -->
 <div id="sec-credits-messaggi" class="section" data-gioco="messaggi">
-<div class="card"><h3>❤️ FuoriDiGame — Messaggi</h3><p>Gioco creato per i gruppi Telegram, idea e gestione di Made & Etna.<br>Grazie di cuore a chi scrive ogni giorno!</p></div>
+<div class="card"><h3>❤️ FuoriDiGame — Messaggi</h3><p>Gioco creato per i gruppi Telegram, idea e gestione di Made &amp; Etna.<br>Grazie di cuore a chi scrive ogni giorno!</p></div>
 <div class="card"><h3>👥 Team</h3>
 <p><b>Made</b> — Idea e gestione</p>
-<a class="btn" href="https://t.me/nick.made" target="_blank">✈️ Telegram @nick.made</a>
-<a class="btn outline" href="https://www.instagram.com/fuoridichat?utm_source=qr&vrfl=am9iOXFhMWFoZ3Iw" target="_blank">📸 Instagram @fuoridichat</a>
+<a class="btn" href="https://t.me/nick.made" target="_blank" rel="noopener">✈️ Telegram @nick.made</a>
+<a class="btn outline" href="https://www.instagram.com/fuoridichat" target="_blank" rel="noopener">📸 Instagram @fuoridichat</a>
 <p style="margin-top:14px"><b>@IoSonoEtna</b> — Team / Supporto</p>
-<a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank">✈️ Telegram @IoSonoEtna</a>
+<a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank" rel="noopener">✈️ Telegram @IoSonoEtna</a>
 <p class="small" style="margin-top:10px">Hai un'idea per un nuovo gioco? Un bug? Scriveteci!</p>
 </div>
 <div class="card"><h3>ℹ️ Versione</h3><p>Miniapp v1 — solo da vedere<br>Messaggi v1<br>Prossimi giochi in arrivo…</p></div>
 <div class="card"><h3>🙏 Ringraziamenti</h3><p>Grazie a tutti quelli che scrivono. Senza di voi la chat sarebbe muta.</p><p>Grazie a etna perché rende tutto possibile.</p></div>
+</div>
+
 </div>
 
 <nav class="subnav" id="nav-fuffa">
@@ -378,7 +347,27 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 </nav>
 
 <script>
-if(window.Telegram && Telegram.WebApp){try{Telegram.WebApp.ready();Telegram.WebApp.expand();}catch(e){}}
+if(window.Telegram && Telegram.WebApp){try{Telegram.WebApp.ready();Telegram.WebApp.expand();try{Telegram.WebApp.setHeaderColor("bg_color");}catch(e){}}catch(e){}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function closeMiniapp(){try{if(window.Telegram && Telegram.WebApp) Telegram.WebApp.close(); else window.close();}catch(e){}}
+const API_BASE = "https://fuoridigame.fuoridichat2025.workers.dev";
+async function fetchJson(url){try{const r=await fetch(url);return await r.json();}catch(e){return null;}}
+function getIds(){
+  const params=new URLSearchParams(location.search);
+  let group_id=params.get("group_id")||"";
+  let user_id=params.get("user_id")||"";
+  let startParam=params.get("tgWebAppStartParam")||params.get("startapp")||params.get("start_param")||"";
+  try{startParam=decodeURIComponent(startParam);}catch(e){}
+  let tgData=null;
+  try{tgData=window.Telegram && Telegram.WebApp ? Telegram.WebApp.initDataUnsafe : null;}catch(e){}
+  if(tgData && tgData.user) user_id=String(tgData.user.id);
+  if(!group_id && tgData && tgData.chat) group_id=String(tgData.chat.id||"");
+  if(!group_id && startParam){
+    const m=startParam.match(/(-100\d+|-\d+)/);
+    if(m) group_id=m[1];
+  }
+  return {group_id,user_id,startParam,params};
+}
 const ITEMS=[
 {id:"tappo",name:"Tappo Masticato dal Fuffa",coll:"Cianfrusaglie",emoji:"🍾",value:5,rarity:"Comune"},
 {id:"orologio",name:"Orologio Fermo da Ieri",coll:"Cianfrusaglie",emoji:"⌚",value:8,rarity:"Comune"},
@@ -415,8 +404,11 @@ const ITEMS=[
 ];
 let owned=new Set([]);
 let DatiVeri=null; let DatiBancarella=[]; let DatiClassifica=[];
-const API_BASE = "https://fuoridigame.fuoridichat2025.workers.dev";
 let curFilter="all";
+function itemImg(it){
+  if(it.image) return '<img src="'+esc(it.image)+'" alt="'+esc(it.name)+'" loading="lazy" onerror="this.parentNode.textContent=\''+esc(it.emoji)+'\'">';
+  return esc(it.emoji);
+}
 function renderCollections(){
   const wrap=document.getElementById("collections");
   const groups=["Cianfrusaglie","Tesori","Reliquie","Natalizia"];
@@ -426,37 +418,36 @@ function renderCollections(){
     const list=ITEMS.filter(i=>i.coll===g);
     const have=list.filter(i=>owned.has(i.id)).length;
     const pct=Math.round(have/list.length*100);
-    html+=`<div class="collection-head"><h3>${g==="Natalizia"?"🎄 ":""}${g}</h3><span class="badge ${g==="Natalizia"?"gold":""}">${have}/${list.length}</span></div><div class="progress"><i style="width:${pct}%"></i></div><div class="small">${pct}% completato • Prestigio: ${g==="Cianfrusaglie"?"1 ⭐":g==="Tesori"?"3 ⭐":g==="Reliquie"?"5 ⭐":"Badge speciale"}</div><div class="grid" style="margin-top:10px">`;
+    html+='<div class="collection-head"><h3>'+(g==="Natalizia"?"🎄 ":"")+esc(g)+'</h3><span class="badge '+(g==="Natalizia"?"gold":"")+'">'+have+'/'+list.length+'</span></div><div class="progress"><i style="width:'+pct+'%"></i></div><div class="small">'+pct+'% completato • Prestigio: '+(g==="Cianfrusaglie"?"1 ⭐":g==="Tesori"?"3 ⭐":g==="Reliquie"?"5 ⭐":"Badge speciale")+'</div><div class="grid" style="margin-top:10px">';
     list.forEach(it=>{
       const locked=!owned.has(it.id);
-      html+=`<div class="item ${locked?"locked":""}" onclick="toggleItem('${it.id}')"><div class="item-img">${it.image ? `<img src="${it.image}" style="width:100%;height:100%;object-fit:cover">` : it.emoji}</div><div class="item-body"><b>${it.name}</b><span>${it.coll}</span><div class="item-foot"><span class="price">${it.value} 💰</span><span class="rarity">${it.rarity}</span></div></div></div>`;
+      html+='<div class="item '+(locked?"locked":"")+'"><div class="item-img">'+itemImg(it)+'</div><div class="item-body"><b>'+esc(it.name)+'</b><span>'+esc(it.coll)+'</span><div class="item-foot"><span class="price">'+esc(it.value)+' 💰</span><span class="rarity">'+esc(it.rarity)+'</span></div></div></div>';
     });
-    html+=`</div>`;
+    html+='</div>';
   });
   wrap.innerHTML=html;
 }
-function toggleItem(id){ /* solo lettura */ }
 function renderZaino(){
   const el=document.getElementById("zainoDemo");
   const list=ITEMS.filter(i=>owned.has(i.id));
   if(list.length===0){el.innerHTML="<p class='small'>Zaino vuoto — caccia il Fuffa!</p>";return;}
-  el.innerHTML=list.map(it=>`<div class="item"><div class="item-img">${it.image ? `<img src="${it.image}" style="width:100%;height:100%;object-fit:cover">` : it.emoji}</div><div class="item-body"><b>${it.name}</b><span>${it.coll}</span><div class="item-foot"><span class="price">${it.value} 💰</span><span class="rarity">${it.rarity}</span></div></div></div>`).join("");
+  el.innerHTML=list.map(it=>'<div class="item"><div class="item-img">'+itemImg(it)+'</div><div class="item-body"><b>'+esc(it.name)+'</b><span>'+esc(it.coll)+'</span><div class="item-foot"><span class="price">'+esc(it.value)+' 💰</span><span class="rarity">'+esc(it.rarity)+'</span></div></div></div>').join("");
 }
 function renderBancarella(){
   const el=document.getElementById("bancarellaList");
-  if(!DatiBancarella || DatiBancarella.length===0){ el.innerHTML=`<p class="small">Bancarella vuota. Nel gruppo usa <b>/vendifuffa</b> per vendere.</p>`; return; }
+  if(!DatiBancarella || DatiBancarella.length===0){ el.innerHTML='<p class="small">Bancarella vuota. Nel gruppo usa <b>/vendifuffa</b> per vendere.</p>'; return; }
   el.innerHTML=DatiBancarella.map(l=>{
     const it=ITEMS.find(x=>x.id===l.item_id)||ITEMS.find(x=>x.name===l.name);
     const emoji=it?it.emoji:"📦";
-    const seller=l.seller_username?`@${l.seller_username}`:l.seller_name;
-    return `<div class="listing"><div class="listing-emoji">${emoji}</div><div style="flex:1"><b>${l.name}</b><br><span class="small">da ${seller}</span></div><b>${l.price} 💰</b></div>`;
-  }).join("")+`<p class="small" style="margin-top:8px">Dati veri dal bot. Per comprare usa <b>/bancarella</b> nel gruppo.</p>`;
+    const seller=l.seller_username?("@"+l.seller_username):(l.seller_name||"Qualcuno");
+    return '<div class="listing"><div class="listing-emoji">'+esc(emoji)+'</div><div style="flex:1"><b>'+esc(l.name||"Oggetto")+'</b><br><span class="small">da '+esc(seller)+'</span></div><b>'+esc(l.price)+' 💰</b></div>';
+  }).join("")+'<p class="small" style="margin-top:8px">Dati veri dal bot. Per comprare usa <b>/bancarella</b> nel gruppo.</p>';
 }
 renderBancarella();
 function renderClassifica(){
   const el=document.getElementById("classificaList");
-  if(!DatiClassifica || DatiClassifica.length===0){ el.innerHTML=`<p class="small">Ancora nessuno in classifica. Scrivi /fuffa nel gruppo!</p>`; return; }
-  el.innerHTML=DatiClassifica.map((u,i)=>`<div class="rank"><div class="rank-num ${i===0?"gold":""}">${i+1}</div><div style="flex:1"><b>${u.display_name}</b>${u.stelle>0?` • ${u.stelle} ⭐`:""}</div><b>${u.saldo} 💰</b></div>`).join("");
+  if(!DatiClassifica || DatiClassifica.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica. Scrivi /fuffa nel gruppo!</p>'; return; }
+  el.innerHTML=DatiClassifica.map((u,i)=>'<div class="rank"><div class="rank-num '+(i===0?"gold":"")+'">'+(i+1)+'</div><div style="flex:1"><b>'+esc(u.display_name||"Utente")+'</b>'+(u.stelle>0?' • '+esc(u.stelle)+' ⭐':"")+'</div><b>'+esc(u.saldo)+' 💰</b></div>').join("");
 }
 renderClassifica();
 let giocoAttivo="fuffa";
@@ -466,64 +457,63 @@ function renderMinigame(){
   const mio=document.getElementById("minigameMio");
   if(!el) return;
   if(MioMinigame && MioMinigame.posizione){
-    mio.innerHTML=`<h3>📊 La tua posizione</h3><p>Sei <b>#${MioMinigame.posizione}</b> con <b>${MioMinigame.punti}</b> punti (${MioMinigame.vinte} vinte)</p>`;
+    mio.innerHTML='<h3>📊 La tua posizione</h3><p>Sei <b>#'+esc(MioMinigame.posizione)+'</b> con <b>'+esc(MioMinigame.punti)+'</b> punti ('+esc(MioMinigame.vinte)+' vinte)</p>';
     document.getElementById("pill-punti").textContent=MioMinigame.punti;
     document.getElementById("pill-vinte").textContent=MioMinigame.vinte;
     document.getElementById("pill-pos").textContent="#"+MioMinigame.posizione;
   }
-  if(!DatiMinigame || DatiMinigame.length===0){ el.innerHTML=`<p class="small">Ancora nessuno in classifica Minigame. Aspetta le :00 nel gruppo!</p>`; return; }
-  el.innerHTML=`<h3 style="margin-bottom:8px">🏆 Classifica Minigame - completa</h3>`+DatiMinigame.map((u,i)=>`<div class="rank"><div class="rank-num ${i===0?"gold":""}">${i+1}</div><div style="flex:1"><b>${u.display_name}</b></div><b>${u.punti} punti</b><span class="small" style="margin-left:6px">${u.vinte} vinte</span></div>`).join("");
+  if(!DatiMinigame || DatiMinigame.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica Minigame. Aspetta le :00 nel gruppo!</p>'; return; }
+  el.innerHTML='<h3 style="margin-bottom:8px">🏆 Classifica Minigame - completa</h3>'+DatiMinigame.map((u,i)=>'<div class="rank"><div class="rank-num '+(i===0?"gold":"")+'">'+(i+1)+'</div><div style="flex:1"><b>'+esc(u.display_name||"Utente")+'</b></div><b>'+esc(u.punti)+' punti</b><span class="small" style="margin-left:6px">'+esc(u.vinte)+' vinte</span></div>').join("");
 }
-// ===== MESSAGGI - SOLO QUESTO AGGIUNTO =====
-let DatiMessaggi=[]; let MioMessaggi=null; let FiltroMessaggi="totale"; let TotaleGruppoMsg=0;
+let DatiMessaggi=[]; let MioMessaggi=null; let MioMessaggiBadges=[]; let DatiMessaggiBadges={}; let FiltroMessaggi="totale"; let TotaleGruppoMsg=0;
 function valoreMsg(u){
   if(FiltroMessaggi==="oggi") return u.oggi||0;
   if(FiltroMessaggi==="settimana") return u.settimana||0;
-  if(FiltroMessaggi==="mese") return u.mese||u.totale||0;
+  if(FiltroMessaggi==="mese") return u.mese||0;
   return u.totale||0;
 }
+function badgeNome(b){return b.badge_nome||b.nome||"";}
 function renderMessaggi(){
   const el=document.getElementById("messaggiList");
   const mio=document.getElementById("messaggiMio");
   if(!el) return;
   const ordinati=[...DatiMessaggi].sort((a,b)=>valoreMsg(b)-valoreMsg(a));
   if(MioMessaggi){
-    const mioVal = MioMessaggi.totale||MioMessaggi.mio?.totale||0;
-    const mioOggi = MioMessaggi.oggi||MioMessaggi.mio?.oggi||0;
-    const mioSett = MioMessaggi.settimana||MioMessaggi.mio?.settimana||0;
-    const badge = MioMessaggi.badge||MioMessaggi.mio?.badge||[];
-    const pos = ordinati.findIndex(x=>String(x.user_id)===String(MioMessaggi.user_id||MioMessaggi.mio?.user_id));
-    mio.innerHTML=`<h3>📊 I tuoi messaggi</h3><p>Totale: <b>${Number(mioVal).toLocaleString("it-IT")}</b> 💬 • Oggi: <b>${mioOggi}</b> • Settimana: <b>${mioSett}</b>${pos>=0?` • Posizione: <b>#${pos+1}</b>`:""}</p>${badge && badge.length?`<p class="small" style="margin-top:6px">🎖️ ${badge.map(b=>b.emoji+" "+b.nome).join(" • ")}</p>`:""}`;
+    const mioVal = MioMessaggi.totale||0;
+    const mioOggi = MioMessaggi.oggi||0;
+    const mioSett = MioMessaggi.settimana||0;
+    const pos = ordinati.findIndex(x=>String(x.user_id)===String(MioMessaggi.user_id));
+    mio.innerHTML='<h3>📊 I tuoi messaggi</h3><p>Totale: <b>'+Number(mioVal).toLocaleString("it-IT")+'</b> 💬 • Oggi: <b>'+esc(mioOggi)+'</b> • Settimana: <b>'+esc(mioSett)+'</b>'+(pos>=0?' • Posizione: <b>#'+(pos+1)+'</b>':"")+'</p>'+(MioMessaggiBadges && MioMessaggiBadges.length?'<p class="small" style="margin-top:6px">🎖️ '+MioMessaggiBadges.map(b=>esc(b.emoji)+" "+esc(badgeNome(b))).join(" • ")+'</p>':"");
     document.getElementById("pill-miei-msg").textContent=Number(mioVal).toLocaleString("it-IT");
     if(pos>=0) document.getElementById("pill-pos-msg").textContent="#"+(pos+1);
-    if(badge) document.getElementById("pill-badge").textContent=badge.length;
+    document.getElementById("pill-badge").textContent=MioMessaggiBadges.length;
   }
   if(TotaleGruppoMsg) document.getElementById("pill-messaggi").textContent=Number(TotaleGruppoMsg).toLocaleString("it-IT");
-  if(!ordinati || ordinati.length===0){ el.innerHTML=`<p class="small">Ancora nessuno in classifica Messaggi. Scrivi nel gruppo!</p>`; return; }
+  if(!ordinati || ordinati.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica Messaggi. Scrivi nel gruppo!</p>'; return; }
   const titolo = FiltroMessaggi==="oggi"?"📅 Oggi":FiltroMessaggi==="settimana"?"📆 Settimana":FiltroMessaggi==="mese"?"🗓️ Mese":"🏆 Totali";
-  el.innerHTML=`<h3 style="margin-bottom:8px">${titolo} — Classifica Messaggi</h3>`+ordinati.map((u,i)=>{
+  el.innerHTML='<h3 style="margin-bottom:8px">'+titolo+' — Classifica Messaggi</h3>'+ordinati.map((u,i)=>{
     const val=valoreMsg(u);
     const nome=u.display_name||u.username||("Utente "+String(u.user_id).slice(-4));
-    const badgeTxt=u.badge && u.badge.length?` • ${u.badge.map(b=>b.emoji).join("")}`:"";
-    return `<div class="rank"><div class="rank-num ${i===0?"gold":""}">${i+1}</div><div style="flex:1"><b>${nome}</b>${badgeTxt}</div><b>${Number(val).toLocaleString("it-IT")} 💬</b></div>`;
+    const badges=DatiMessaggiBadges[String(u.user_id)]||[];
+    const badgeTxt=badges.length?' • '+badges.map(b=>esc(b.emoji)).join(""):"";
+    return '<div class="rank"><div class="rank-num '+(i===0?"gold":"")+'">'+(i+1)+'</div><div style="flex:1"><b>'+esc(nome)+'</b>'+badgeTxt+'</div><b>'+Number(val).toLocaleString("it-IT")+' 💬</b></div>';
   }).join("");
 }
 async function caricaMessaggi(){
   try{
-    const params=new URLSearchParams(location.search);
-    let group_id=params.get("group_id")||"";
-    let user_id="";
-    let tg=null;
-    try{ tg=window.Telegram && Telegram.WebApp ? Telegram.WebApp.initDataUnsafe : null; }catch(e){}
-    if(tg && tg.user) user_id=String(tg.user.id);
-    if(!user_id) user_id=params.get("user_id")||"";
-    if(!group_id && tg && tg.chat) group_id=String(tg.chat.id||"");
+    const {group_id,user_id}=getIds();
     if(!group_id) return;
-    const r=await fetch(API_BASE+"/api/messaggi?group_id="+encodeURIComponent(group_id)).then(x=>x.json()).catch(()=>null);
-    if(r && r.ok){ DatiMessaggi=r.classifica||[]; if(r.totale_gruppo) TotaleGruppoMsg=r.totale_gruppo; renderMessaggi(); }
+    const r=await fetchJson(API_BASE+"/api/messaggi?group_id="+encodeURIComponent(group_id));
+    if(r && r.ok){
+      DatiMessaggi=r.classifica||[];
+      if(r.totale_gruppo) TotaleGruppoMsg=r.totale_gruppo;
+      DatiMessaggiBadges={};
+      (r.badges||[]).forEach(b=>{const k=String(b.user_id);(DatiMessaggiBadges[k]=DatiMessaggiBadges[k]||[]).push(b);});
+      renderMessaggi();
+    }
     if(user_id){
-      const r2=await fetch(API_BASE+"/api/mio-messaggi?group_id="+encodeURIComponent(group_id)+"&user_id="+encodeURIComponent(user_id)).then(x=>x.json()).catch(()=>null);
-      if(r2 && r2.ok){ MioMessaggi=r2.mio||r2; if(r2.totale_gruppo) TotaleGruppoMsg=r2.totale_gruppo; renderMessaggi(); }
+      const r2=await fetchJson(API_BASE+"/api/mio-messaggi?group_id="+encodeURIComponent(group_id)+"&user_id="+encodeURIComponent(user_id));
+      if(r2 && r2.ok){ MioMessaggi=r2.mio||null; MioMessaggiBadges=r2.badges||[]; if(r2.totale_gruppo) TotaleGruppoMsg=r2.totale_gruppo; renderMessaggi(); }
     }
   }catch(e){}
 }
@@ -536,7 +526,7 @@ function showTab(tab){
   document.querySelectorAll(".subnav button").forEach(b=>b.classList.remove("active"));
   const sec=document.getElementById("sec-"+tab);
   if(sec) sec.classList.add("active");
-  const btn=document.querySelector(`.subnav button[data-tab="${tab}"]`);
+  const btn=document.querySelector('.subnav button[data-tab="'+tab+'"]');
   if(btn) btn.classList.add("active");
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -552,88 +542,4 @@ function switchGame(gioco, tabForzato){
   document.getElementById("topbar-minigame").style.display = gioco==="minigame" ? "flex" : "none";
   document.getElementById("topbar-messaggi").style.display = gioco==="messaggi" ? "flex" : "none";
   document.getElementById("hero-fuffa").style.display = gioco==="fuffa" ? "flex" : "none";
-  document.getElementById("hero-minigame").style.display = gioco==="minigame" ? "flex" : "none";
-  document.getElementById("hero-messaggi").style.display = gioco==="messaggi" ? "flex" : "none";
-  document.getElementById("nav-fuffa").style.display = gioco==="fuffa" ? "flex" : "none";
-  document.getElementById("nav-minigame").style.display = gioco==="minigame" ? "flex" : "none";
-  document.getElementById("nav-messaggi").style.display = gioco==="messaggi" ? "flex" : "none";
-  if(tabForzato) showTab(tabForzato);
-  else if(gioco==="fuffa") showTab("collezioni");
-  else if(gioco==="minigame") showTab("minigame-classifica");
-  else showTab("messaggi-classifica");
-}
-document.querySelectorAll(".subnav button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
-async function caricaMinigame(){
-  try{
-    const params=new URLSearchParams(location.search);
-    let group_id=params.get("group_id")||"";
-    let user_id="";
-    let tg=null;
-    try{ tg=window.Telegram && Telegram.WebApp ? Telegram.WebApp.initDataUnsafe : null; }catch(e){}
-    if(tg && tg.user) user_id=String(tg.user.id);
-    if(!user_id) user_id=params.get("user_id")||"";
-    if(!group_id && tg && tg.chat) group_id=String(tg.chat.id||"");
-    if(!group_id) return;
-    const url="https://fuoridigame.fuoridichat2025.workers.dev/api/classifica-minigame?group_id="+encodeURIComponent(group_id)+(user_id?"&user_id="+encodeURIComponent(user_id):"");
-    const r=await fetch(url).then(x=>x.json()).catch(()=>null);
-    if(r && r.ok){ DatiMinigame=r.classifica||[]; MioMinigame=r.mio||null; renderMinigame(); }
-  }catch(e){}
-}
-document.querySelectorAll("#filters .filter").forEach(f=>f.addEventListener("click",()=>{
-  document.querySelectorAll("#filters .filter").forEach(x=>x.classList.remove("active"));
-  f.classList.add("active"); curFilter=f.dataset.f; renderCollections();
-}));
-async function caricaDatiVeri(){
-  try{
-    const params=new URLSearchParams(location.search);
-    let group_id=params.get("group_id")||"";
-    let user_id="";
-    let tg=null;
-    try{ tg=window.Telegram && Telegram.WebApp ? Telegram.WebApp.initDataUnsafe : null; }catch(e){}
-    if(tg && tg.user) user_id=String(tg.user.id);
-    if(!user_id) user_id=params.get("user_id")||"";
-    if(!group_id && tg && tg.chat) group_id=String(tg.chat.id||"");
-    const pillStato=document.getElementById("pill-stato");
-    if(!group_id || !user_id){
-      if(pillStato){ pillStato.style.display=""; pillStato.textContent="👀 Apri da /fuffapp nel gruppo per vedere i tuoi dati veri"; }
-      renderCollections(); renderZaino(); renderBancarella(); renderClassifica();
-      return;
-    }
-    if(pillStato){ pillStato.style.display=""; pillStato.textContent="🔄 Carico dati veri…"; }
-    const [rMio, rBanc, rClas] = await Promise.all([
-      fetch(API_BASE+"/api/mio-stato?group_id="+encodeURIComponent(group_id)+"&user_id="+encodeURIComponent(user_id)).then(r=>r.json()).catch(()=>null),
-      fetch(API_BASE+"/api/bancarella?group_id="+encodeURIComponent(group_id)).then(r=>r.json()).catch(()=>null),
-      fetch(API_BASE+"/api/classifica?group_id="+encodeURIComponent(group_id)).then(r=>r.json()).catch(()=>null),
-    ]);
-    if(rMio && rMio.ok){
-      DatiVeri=rMio;
-      owned=new Set((rMio.zaino||[]).map(z=>z.id));
-      document.getElementById("pill-soldi").textContent=rMio.saldo;
-      document.getElementById("pill-stelle").textContent=rMio.stelle;
-      const distinti=new Set((rMio.zaino||[]).map(z=>z.id)).size;
-      document.getElementById("pill-oggetti").textContent=distinti+"/32";
-    }
-    if(rBanc && rBanc.ok) DatiBancarella=rBanc.listings||[];
-    if(rClas && rClas.ok) DatiClassifica=rClas.classifica||[];
-    if(pillStato) pillStato.style.display="none";
-    renderCollections(); renderZaino(); renderBancarella(); renderClassifica();
-  }catch(e){ renderCollections(); renderZaino(); renderBancarella(); renderClassifica(); }
-}
-caricaDatiVeri();
-const params=new URLSearchParams(location.search);
-let sec=params.get("section")||params.get("startapp")||"";
-if(!sec && location.hash) sec=location.hash.replace("#","");
-if(sec==="minigame"||sec==="classificaflash"||sec==="flash"||sec==="minigame-classifica") switchGame("minigame","minigame-classifica");
-else if(sec==="istruzioni-minigame") switchGame("minigame","istruzioni-minigame");
-else if(sec==="credits-minigame") switchGame("minigame","credits-minigame");
-else if(sec==="messaggi"||sec==="messaggi-classifica"||sec==="topmsg") switchGame("messaggi","messaggi-classifica");
-else if(sec==="istruzioni-messaggi") switchGame("messaggi","istruzioni-messaggi");
-else if(sec==="credits-messaggi") switchGame("messaggi","credits-messaggi");
-else if(sec==="credits"||sec==="credits-fuffa") switchGame("fuffa","credits-fuffa");
-else if(sec==="zaino"||sec==="bancarella"||sec==="classifica"||sec==="istruzioni") switchGame("fuffa",sec);
-else switchGame("fuffa","collezioni");
-caricaMinigame(); renderMinigame();
-caricaMessaggi(); renderMessaggi();
-</script>
-</body>
-</html>
+  document.getElementById("hero-minigame").
