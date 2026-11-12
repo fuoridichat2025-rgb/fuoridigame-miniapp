@@ -236,8 +236,8 @@ nav button.active span{filter:none}
 <button data-tab="collezioni" class="active"><span>🗂️</span>Collezioni</button>
 <button data-tab="zaino"><span>🎒</span>Zaino</button>
 <button data-tab="bancarella"><span>🏪</span>Bancarella</button>
-<button data-tab="classifica"><span>🏆</span>Classifica</button>
 <button data-tab="minigame"><span>🎮</span>Minigame</button>
+<button data-tab="classifica"><span>🏆</span>Classifica</button>
 <button data-tab="istruzioni"><span>📖</span>Istruzioni</button>
 <button data-tab="credits"><span>❤️</span>Credits</button>
 </nav>
@@ -279,7 +279,6 @@ const ITEMS=[
 {id:"biscotto",name:"Biscotto di Pan di Zenzero",coll:"Natalizia",emoji:"🍪",value:18,rarity:"Comune"},
 ];
 let owned=new Set(["tappo","anello"]);
-let DatiMinigame=[]; let MioMinigame=null;
 let curFilter="all";
 function renderCollections(){
   const wrap=document.getElementById("collections");
@@ -299,24 +298,7 @@ function renderCollections(){
   });
   wrap.innerHTML=html;
 }
-function toggleItem(id){ if(owned.has(id)) owned.delete(id); else owned.add(id); renderCollections(); renderZaino(); renderMinigame();
-async function caricaMinigame(){
-  try{
-    const params=new URLSearchParams(location.search);
-    let group_id=params.get("group_id")||"";
-    let user_id="";
-    let tg=null;
-    try{ tg=window.Telegram && Telegram.WebApp ? Telegram.WebApp.initDataUnsafe : null; }catch(e){}
-    if(tg && tg.user) user_id=String(tg.user.id);
-    if(!user_id) user_id=params.get("user_id")||"";
-    if(!group_id && tg && tg.chat) group_id=String(tg.chat.id||"");
-    if(!group_id) return;
-    const url="https://fuoridigame.fuoridichat2025.workers.dev/api/classifica-minigame?group_id="+encodeURIComponent(group_id)+(user_id?"&user_id="+encodeURIComponent(user_id):"");
-    const r=await fetch(url).then(x=>x.json()).catch(()=>null);
-    if(r && r.ok){ DatiMinigame=r.classifica||[]; MioMinigame=r.mio||null; renderMinigame(); }
-  }catch(e){}
-}
-caricaMinigame(); }
+function toggleItem(id){ if(owned.has(id)) owned.delete(id); else owned.add(id); renderCollections(); renderZaino(); renderMinigame(); caricaMinigame(); }
 function renderZaino(){
   const el=document.getElementById("zainoDemo");
   const list=ITEMS.filter(i=>owned.has(i.id));
@@ -342,21 +324,7 @@ function renderMinigame(){
   if(!DatiMinigame || DatiMinigame.length===0){ el.innerHTML=`<p class="small">Ancora nessuno in classifica Minigame. Aspetta le :00 nel gruppo!</p>`; return; }
   el.innerHTML=`<h3 style="margin-bottom:8px">🏆 Classifica Minigame - completa</h3>`+DatiMinigame.map((u,i)=>`<div class="rank"><div class="rank-num ${i===0?"gold":""}">${i+1}</div><div style="flex:1"><b>${u.display_name}</b></div><b>${u.punti} punti</b><span class="small" style="margin-left:6px">${u.vinte} vinte</span></div>`).join("");
 }
-function showTab(tab){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-  const sec=document.getElementById("sec-"+tab);
-  if(sec) sec.classList.add("active");
-  const btn=document.querySelector(`nav button[data-tab="${tab}"]`);
-  if(btn) btn.classList.add("active");
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
-document.querySelectorAll("#filters .filter").forEach(f=>f.addEventListener("click",()=>{
-  document.querySelectorAll("#filters .filter").forEach(x=>x.classList.remove("active"));
-  f.classList.add("active"); curFilter=f.dataset.f; renderCollections();
-}));
-renderCollections(); renderZaino(); renderMinigame();
+let DatiMinigame=[]; let MioMinigame=null;
 async function caricaMinigame(){
   try{
     const params=new URLSearchParams(location.search);
@@ -373,7 +341,21 @@ async function caricaMinigame(){
     if(r && r.ok){ DatiMinigame=r.classifica||[]; MioMinigame=r.mio||null; renderMinigame(); }
   }catch(e){}
 }
-caricaMinigame();
+function showTab(tab){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  const sec=document.getElementById("sec-"+tab);
+  if(sec) sec.classList.add("active");
+  const btn=document.querySelector(`nav button[data-tab="${tab}"]`);
+  if(btn) btn.classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+document.querySelectorAll("#filters .filter").forEach(f=>f.addEventListener("click",()=>{
+  document.querySelectorAll("#filters .filter").forEach(x=>x.classList.remove("active"));
+  f.classList.add("active"); curFilter=f.dataset.f; renderCollections();
+}));
+renderCollections(); renderZaino(); renderMinigame(); caricaMinigame();
 const params=new URLSearchParams(location.search);
 let sec=params.get("section")||params.get("startapp")||"";
 if(!sec && location.hash) sec=location.hash.replace("#","");
