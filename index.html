@@ -83,6 +83,7 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 .subnav button span{font-size:20px;pointer-events:none}
 .subnav button.active{color:var(--forest);font-weight:700}
 .note{background:#FFF3C4;border:1px dashed var(--gold2);border-radius:12px;padding:12px;font-size:13px;line-height:1.5}
+.qty-badge{background:var(--gold);color:#1E3A2B;font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px}
 </style>
 </head>
 <body>
@@ -120,10 +121,9 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <button type="button" id="btn-gioco-minigame" data-game="minigame">🎮 Minigame<small>Quiz • Classifica • Punti</small></button>
 <button type="button" id="btn-gioco-messaggi" data-game="messaggi">💬 Messaggi<small>Chi scrive di più • Badge</small></button>
 </div>
-
 <div class="hero" id="hero-fuffa">
 <div class="hero-emoji">📱</div>
-<div><h2>Apri la miniapp con /fuffapp</h2><p>Scrivi <b>/fuffapp</b> nel gruppo e si apre qui, sulla sezione Fuffa.</p></div>
+<div><h2 id="hero-fuffa-titolo">Dati reali del tuo gruppo</h2><p id="hero-fuffa-testo">Carico il tuo zaino, le collezioni e la classifica…</p><p class="small" id="hero-fuffa-gruppo" style="margin-top:4px"></p></div>
 </div>
 <div class="hero" id="hero-minigame" style="display:none">
 <div class="hero-emoji">🎮</div>
@@ -133,11 +133,10 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <div class="hero-emoji">💬</div>
 <div><h2>Messaggi — chi scrive di più vince</h2><p>Ogni messaggio conta, anche gif e sticker. Ogni sera alle 00:05 arriva la classifica di ieri. Scrivi <b>/topmsg</b> nel gruppo per la classifica.</p></div>
 </div>
-
 <div class="wrap">
-
 <div id="sec-collezioni" data-gioco="fuffa" class="section active">
-<div class="card"><h3>🎯 Collezioni Fuffa</h3><p>Tocca un oggetto grigio per vedere come si rivela quando lo trovi. Per ora è solo da vedere, per giocare usa i comandi nel gruppo.</p><div class="small" style="margin-top:6px">Colleziona tutti gli oggetti di una collezione → fai Prestigio → prendi Stelle e Badge. Le Stelle danno +2% soldi a ogni ritrovamento nuovo. Se è doppione prendi solo soldi normali, senza bonus.</div></div>
+<div class="card"><h3>🎯 Collezioni Fuffa</h3><p id="collezioni-testo">Questi sono i tuoi oggetti veri. Grigi con 🔒 = non li hai ancora trovati. Colorati = li hai.</p><div class="small" style="margin-top:6px">Colleziona tutti gli oggetti di una collezione → fai Prestigio → prendi Stelle e Badge. Le Stelle danno +2% soldi a ogni ritrovamento nuovo. Se è doppione prendi solo soldi normali, senza bonus.</div></div>
+<div class="card" id="card-gruppo"><h3>👥 Il tuo gruppo</h3><p id="gruppo-stats-testo">Carico…</p><p class="small" id="prossimo-fuffa-testo">Prossimo Fuffa: carico…</p><p class="small">Il Fuffa spawna ogni 18-42 minuti, dalle 6 alle 23. Con il cron ogni 6 minuti gli spawn reali sono 18 / 24 / 30 / 36 / 42 minuti dopo l’ultimo.</p></div>
 <div class="filters" id="filters">
 <button type="button" class="filter active" data-f="all">Tutte</button>
 <button type="button" class="filter" data-f="Cianfrusaglie">Cianfrusaglie</button>
@@ -156,27 +155,23 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <p class="small" style="margin-top:8px">Prestigio cancella gli oggetti di quella collezione e ti dà Stelle + Badge. Es: <code>/prestigio Cianfrusaglie</code></p>
 </div>
 </div>
-
 <div id="sec-zaino" data-gioco="fuffa" class="section">
-<div class="card"><h3>🎒 Il tuo Zaino</h3><p>Qui vedrai tutti gli oggetti che hai trovato cacciando il Fuffa.</p><p class="small" style="margin-top:8px">Per ora anteprima. Nel gruppo usa <b>/zaino</b> per vedere il tuo zaino vero.</p></div>
-<div class="card"><h3>Esempio — come apparirà</h3><div class="grid" id="zainoDemo"></div></div>
+<div class="card"><h3>🎒 Il tuo Zaino</h3><p id="zaino-testo">Qui ci sono gli oggetti che hai trovato cacciando il Fuffa, in questo gruppo.</p><p class="small" style="margin-top:8px" id="zaino-sottotesto">Dati reali dal bot. Se è vuoto, caccia il Fuffa nel gruppo.</p></div>
+<div class="card"><h3>Oggetti trovati</h3><div class="grid" id="zainoDemo"></div></div>
 <div class="note">💡 <b>Doppione?</b> Se trovi un oggetto che hai già, prendi solo i Soldi Bucati. Se è nuovo, completi la collezione!</div>
 </div>
-
 <div id="sec-bancarella" data-gioco="fuffa" class="section">
-<div class="card"><h3>🏪 Bancarella</h3><p>Compra e vendi oggetti con gli altri giocatori. Nel gruppo: <b>/vendifuffa</b> per vendere, <b>/bancarella</b> per vedere, <b>/comprafuffa</b> per comprare.</p></div>
+<div class="card"><h3>🏪 Bancarella</h3><p>Compra e vendi oggetti con gli altri giocatori di <b>questo gruppo</b>. Nel gruppo: <b>/vendifuffa</b> per vendere, <b>/bancarella</b> per vedere, <b>/comprafuffa</b> per comprare.</p></div>
 <div class="card" id="bancarellaList"></div>
 </div>
-
 <div id="sec-classifica" data-gioco="fuffa" class="section">
-<div class="card"><h3>🏆 Classifica Soldi Bucati</h3><p>Chi ha più Soldi Bucati vince. Nel gruppo: <b>/topfuffa</b></p><button type="button" class="btn-small" data-refresh="fuffa">🔄 Aggiorna</button></div>
+<div class="card"><h3>🏆 Classifica Soldi Bucati</h3><p>Chi ha più Soldi Bucati vince — solo in questo gruppo. Nel gruppo: <b>/topfuffa</b></p><button type="button" class="btn-small" data-refresh="fuffa">🔄 Aggiorna</button></div>
 <div class="card" id="classificaList"></div>
 </div>
-
 <div id="sec-istruzioni" data-gioco="fuffa" class="section">
 <div class="card" style="background:var(--forest);color:white"><h3 style="color:white">📱 Apri la miniapp con /fuffapp</h3><p style="color:#EFEFEF">Scrivi <b>/fuffapp</b> nel gruppo e si apre questa miniapp sulla sezione Fuffa.</p></div>
 <div class="card"><h3>🎮 Come si gioca a Fuffa</h3>
-<div class="step"><div class="step-num">1</div><div><b>Il Fuffa spawna da solo</b><br><span class="small">Dalle 6 alle 23 appare da solo nel gruppo</span></div></div>
+<div class="step"><div class="step-num">1</div><div><b>Il Fuffa spawna da solo</b><br><span class="small">Dalle 6 alle 23, ogni 18-42 minuti (18 / 24 / 30 / 36 / 42 con cron ogni 6 min)</span></div></div>
 <div class="step"><div class="step-num">2</div><div><b>Tocca “Caccia via il Fuffa!”</b><br><span class="small">Hai 5 minuti, se no scappa</span></div></div>
 <div class="step"><div class="step-num">3</div><div><b>Vinci oggetto + Soldi Bucati</b><br><span class="small">Se è doppione solo soldi, se è nuovo valore + bonus stelle</span></div></div>
 <div class="step"><div class="step-num">4</div><div><b>Colleziona tutto e fai Prestigio</b><br><span class="small">Cancella gli oggetti di quella collezione e prendi Stelle + Badge</span></div></div>
@@ -196,7 +191,6 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <div class="cmd"><code>/topfuffa</code><p>Classifica</p></div>
 </div>
 </div>
-
 <div id="sec-credits-fuffa" class="section" data-gioco="fuffa">
 <div class="card"><h3>❤️ FuoriDiGame — Fuffa</h3><p>Gioco creato per i gruppi Telegram, idea e gestione di Made &amp; Etna.<br>Grazie a chi gioca e caccia il Fuffa ogni giorno!</p><p>Grazie Etna, per tutto ❤️</div>
 <div class="card"><h3>👥 Team</h3>
@@ -208,7 +202,6 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 </div>
 <div class="card"><h3>ℹ️ Versione</h3><p>Miniapp v1 — Fuffa v1<br>Prossimi giochi in arrivo…</p></div>
 </div>
-
 <div id="sec-minigame-classifica" class="section" data-gioco="minigame">
 <div class="card"><h3>🎮 Minigame — Classifica completa</h3><p>Bandiere, capitali, emoji, trivia, calcoli, parole. Ogni ora in punto nel gruppo. Ogni vittoria = <b>+10 punti</b>.</p><p class="small" style="margin-top:6px">Nel gruppo: <b>/classificaflash</b> per la Top 10, ogni sera alle 23:12 arriva la classifica della sera.</p><button type="button" class="btn-small" data-refresh="minigame">🔄 Aggiorna</button></div>
 <div class="card" id="minigameMio"><p class="small">Apri da /fuffapp nel gruppo per vedere la tua posizione.</p></div>
@@ -237,7 +230,6 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank" rel="noopener">✈️ Telegram @IoSonoEtna</a>
 </div>
 </div>
-
 <div id="sec-messaggi-classifica" class="section" data-gioco="messaggi">
 <div class="card"><h3>💬 Messaggi — Classifica</h3><p>Ogni messaggio conta, anche gif, sticker, foto, vocali. Antiflood 3 secondi.</p><p class="small" style="margin-top:6px">Totale gruppo dal 3 giugno 2025. Ogni notte alle 00:05 arriva la classifica di ieri.</p><button type="button" class="btn-small" data-refresh="messaggi">🔄 Aggiorna</button></div>
 <div class="card"><h3>🔍 Filtra</h3><div class="filters">
@@ -289,9 +281,7 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <a class="btn gold" href="https://t.me/IoSonoEtna" target="_blank" rel="noopener">✈️ Telegram @IoSonoEtna</a>
 </div>
 </div>
-
 </div>
-
 <nav class="subnav" id="nav-fuffa">
 <button type="button" data-tab="collezioni" class="active"><span>🗂️</span>Collezioni</button>
 <button type="button" data-tab="zaino"><span>🎒</span>Zaino</button>
@@ -310,9 +300,7 @@ header p{font-size:13px;opacity:.85;margin-top:4px}
 <button type="button" data-tab="istruzioni-messaggi"><span>📖</span>Istruzioni</button>
 <button type="button" data-tab="credits-messaggi"><span>❤️</span>Credits</button>
 </nav>
-
 <script>
-// --- 1. Funzioni base PRIMA di tutto, così i bottoni funzionano anche se un fetch dopo si rompe ---
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function setStatus(t,isErr){var el=document.getElementById("js-status");if(!el)return;el.textContent=t;el.classList.toggle("err",!!isErr);}
 window.addEventListener("error",function(e){setStatus("JS: ERRORE - "+(e.message||"sconosciuto"),true);});
@@ -352,7 +340,6 @@ function switchGame(gioco, tabForzato){
   }catch(e){setStatus("JS: ERRORE switchGame - "+e.message,true);}
 }
 window.switchGame=switchGame; window.showTab=showTab; window.closeMiniapp=closeMiniapp;
-// --- 2. Un solo listener in delega per TUTTI i bottoni ---
 document.addEventListener("click", function(e){
   var chiudi=e.target.closest("#btn-chiudi");
   if(chiudi){closeMiniapp();return;}
@@ -432,11 +419,17 @@ const ITEMS=[
 {id:"biscotto",image:"https://i.postimg.cc/X7fQ1g9r/Meta-AI-902292174-1694351842396738-5108338102649215338-n-20261111-154146.jpg",name:"Omino Bruciato a Metà",coll:"Natalizia",emoji:"🍪",value:18,rarity:"Comune"},
 ];
 let owned=new Set([]);
+let zainoQty={};
+let DatiCollezioni=[];
 let DatiBancarella=[]; let DatiClassifica=[];
+let DatiGruppoStats=null; let DatiFuffaStato=null;
 let curFilter="all";
 function itemImg(it){
-  if(it.image) return '<img src="'+esc(it.image)+'" alt="'+esc(it.name)+'" loading="lazy" data-emoji="'+esc(it.emoji)+'" onerror="this.replaceWith(this.dataset.emoji)">';
+  if(it.image) return '<img src="'+esc(it.image)+'" alt="'+esc(it.name)+'" loading="lazy">';
   return esc(it.emoji);
+}
+function collezioneReale(nome){
+  return DatiCollezioni.find(function(c){return c.collection===nome;})||null;
 }
 function renderCollections(){
   try{
@@ -446,12 +439,17 @@ function renderCollections(){
     groups.forEach(function(g){
       if(curFilter!=="all" && curFilter!==g) return;
       var list=ITEMS.filter(function(i){return i.coll===g;});
-      var have=list.filter(function(i){return owned.has(i.id);}).length;
-      var pct=Math.round(have/list.length*100);
-      html+='<div class="collection-head"><h3>'+(g==="Natalizia"?"🎄 ":"")+esc(g)+'</h3><span class="badge '+(g==="Natalizia"?"gold":"")+'">'+have+'/'+list.length+'</span></div><div class="progress"><i style="width:'+pct+'%"></i></div><div class="small">'+pct+'% completato • Prestigio: '+(g==="Cianfrusaglie"?"1 ⭐":g==="Tesori"?"3 ⭐":g==="Reliquie"?"5 ⭐":"Badge speciale")+'</div><div class="grid" style="margin-top:10px">';
+      var reale=collezioneReale(g);
+      var have=reale?reale.have:list.filter(function(i){return owned.has(i.id);}).length;
+      var total=reale?reale.total:list.length;
+      var pct=total?Math.round(have/total*100):0;
+      var prestigio=reale?reale.prestigio:0;
+      var badge=reale&&reale.badge?reale.badge:"";
+      html+='<div class="collection-head"><h3>'+(g==="Natalizia"?"🎄 ":"")+esc(g)+'</h3><span class="badge '+(g==="Natalizia"?"gold":"")+'">'+have+'/'+total+'</span></div><div class="progress"><i style="width:'+pct+'%"></i></div><div class="small">'+pct+'% completato • Prestigio: '+prestigio+(badge?' • 🏅 '+esc(badge):"")+' • Stelle per prestigio: '+(g==="Cianfrusaglie"?"1 ⭐":g==="Tesori"?"3 ⭐":g==="Reliquie"?"5 ⭐":"Badge speciale")+'</div><div class="grid" style="margin-top:10px">';
       list.forEach(function(it){
         var locked=!owned.has(it.id);
-        html+='<div class="item '+(locked?"locked":"")+'"><div class="item-img">'+itemImg(it)+'</div><div class="item-body"><b>'+esc(it.name)+'</b><span>'+esc(it.coll)+'</span><div class="item-foot"><span class="price">'+esc(it.value)+' 💰</span><span class="rarity">'+esc(it.rarity)+'</span></div></div></div>';
+        var q=zainoQty[it.id]||0;
+        html+='<div class="item '+(locked?"locked":"")+'"><div class="item-img">'+itemImg(it)+'</div><div class="item-body"><b>'+esc(it.name)+'</b><span>'+esc(it.coll)+'</span><div class="item-foot"><span class="price">'+esc(it.value)+' 💰</span><span class="rarity">'+esc(it.rarity)+'</span></div>'+(q>1?'<div style="margin-top:6px"><span class="qty-badge">x'+q+' doppioni inclusi</span></div>':q===1?'<div style="margin-top:6px"><span class="small">✅ Ce l\'hai</span></div>':'')+'</div></div>';
       });
       html+='</div>';
     });
@@ -461,22 +459,50 @@ function renderCollections(){
 function renderZaino(){
   var el=document.getElementById("zainoDemo"); if(!el) return;
   var list=ITEMS.filter(function(i){return owned.has(i.id);});
-  if(list.length===0){el.innerHTML="<p class='small'>Zaino vuoto — caccia il Fuffa!</p>";return;}
-  el.innerHTML=list.map(function(it){return '<div class="item"><div class="item-img">'+itemImg(it)+'</div><div class="item-body"><b>'+esc(it.name)+'</b><span>'+esc(it.coll)+'</span><div class="item-foot"><span class="price">'+esc(it.value)+' 💰</span><span class="rarity">'+esc(it.rarity)+'</span></div></div></div>';}).join("");
+  var testo=document.getElementById("zaino-testo");
+  if(list.length===0){
+    el.innerHTML="<p class='small'>Zaino vuoto — caccia il Fuffa nel gruppo!</p>";
+    if(testo) testo.textContent="Non hai ancora trovato niente in questo gruppo.";
+    return;
+  }
+  if(testo) testo.textContent="Hai "+list.length+" tipi di oggetto in questo gruppo. Sotto le quantità reali.";
+  el.innerHTML=list.map(function(it){
+    var q=zainoQty[it.id]||1;
+    return '<div class="item"><div class="item-img">'+itemImg(it)+'</div><div class="item-body"><b>'+esc(it.name)+'</b><span>'+esc(it.coll)+' • ne hai <b>'+q+'</b></span><div class="item-foot"><span class="price">'+esc(it.value)+' 💰</span><span class="rarity">'+esc(it.rarity)+'</span></div></div></div>';
+  }).join("");
+}
+function renderGruppo(){
+  var el=document.getElementById("gruppo-stats-testo"); if(!el) return;
+  if(!DatiGruppoStats){ el.textContent="Carico…"; return; }
+  var s=DatiGruppoStats;
+  el.innerHTML="Gruppo: <b>"+esc(s.title||"Gruppo")+"</b><br>👥 Giocatori attivi: <b>"+esc(s.giocatori)+"</b> • 🏪 In bancarella: <b>"+esc(s.bancarella_attivi)+"</b> • 🥾 Fuffa attivo ora: <b>"+(s.fuffa_attivo?"Sì, caccialo!":"No")+"</b>"+(s.top?"<br>🏆 In testa: <b>"+esc(s.top.display_name)+"</b> con <b>"+esc(s.top.saldo)+" 💰</b>":"");
+  var heroG=document.getElementById("hero-fuffa-gruppo");
+  if(heroG) heroG.textContent="Gruppo: "+(s.title||"")+" • ID "+s.group_id;
+  var pf=document.getElementById("prossimo-fuffa-testo");
+  if(pf){
+    if(DatiFuffaStato && DatiFuffaStato.minuti_rimanenti!=null){
+      var m=DatiFuffaStato.minuti_rimanenti;
+      pf.textContent=m<=0?"Prossimo Fuffa: sta per spawnare! Resta nel gruppo.":"Prossimo Fuffa tra circa "+m+" minuti (18-42 min, step 6 min).";
+    } else if(DatiFuffaStato && DatiFuffaStato.next_spawn_at){
+      pf.textContent="Prossimo Fuffa programmato: "+DatiFuffaStato.next_spawn_at;
+    } else {
+      pf.textContent="Prossimo Fuffa: ogni 18-42 minuti, dalle 6 alle 23.";
+    }
+  }
 }
 function renderBancarella(){
   var el=document.getElementById("bancarellaList"); if(!el) return;
-  if(!DatiBancarella || DatiBancarella.length===0){ el.innerHTML='<p class="small">Bancarella vuota. Nel gruppo usa <b>/vendifuffa</b> per vendere.</p>'; return; }
+  if(!DatiBancarella || DatiBancarella.length===0){ el.innerHTML='<p class="small">Bancarella vuota in questo gruppo. Nel gruppo usa <b>/vendifuffa</b> per vendere.</p>'; return; }
   el.innerHTML=DatiBancarella.map(function(l){
     var it=ITEMS.find(function(x){return x.id===l.item_id;})||ITEMS.find(function(x){return x.name===l.name;});
     var emoji=it?it.emoji:"📦";
     var seller=l.seller_username?("@"+l.seller_username):(l.seller_name||"Qualcuno");
     return '<div class="listing"><div class="listing-emoji">'+esc(emoji)+'</div><div style="flex:1"><b>'+esc(l.name||"Oggetto")+'</b><br><span class="small">da '+esc(seller)+'</span></div><b>'+esc(l.price)+' 💰</b></div>';
-  }).join("")+'<p class="small" style="margin-top:8px">Dati veri dal bot. Per comprare usa <b>/bancarella</b> nel gruppo.</p>';
+  }).join("")+'<p class="small" style="margin-top:8px">Dati veri di questo gruppo. Per comprare usa <b>/bancarella</b> nel gruppo.</p>';
 }
 function renderClassifica(){
   var el=document.getElementById("classificaList"); if(!el) return;
-  if(!DatiClassifica || DatiClassifica.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica. Scrivi /fuffa nel gruppo!</p>'; return; }
+  if(!DatiClassifica || DatiClassifica.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica in questo gruppo. Scrivi /fuffa nel gruppo!</p>'; return; }
   el.innerHTML=DatiClassifica.map(function(u,i){return '<div class="rank"><div class="rank-num '+(i===0?"gold":"")+'">'+(i+1)+'</div><div style="flex:1"><b>'+esc(u.display_name||"Utente")+'</b>'+(u.stelle>0?' • '+esc(u.stelle)+' ⭐':"")+'</div><b>'+esc(u.saldo)+' 💰</b></div>';}).join("");
 }
 let DatiMinigame=[]; let MioMinigame=null;
@@ -489,7 +515,7 @@ function renderMinigame(){
     var pv=document.getElementById("pill-vinte"); if(pv) pv.textContent=MioMinigame.vinte;
     var po=document.getElementById("pill-pos"); if(po) po.textContent="#"+MioMinigame.posizione;
   }
-  if(!DatiMinigame || DatiMinigame.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica Minigame. Aspetta le :00 nel gruppo!</p>'; return; }
+  if(!DatiMinigame || DatiMinigame.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica Minigame in questo gruppo. Aspetta le :00 nel gruppo!</p>'; return; }
   el.innerHTML='<h3 style="margin-bottom:8px">🏆 Classifica Minigame - completa</h3>'+DatiMinigame.map(function(u,i){return '<div class="rank"><div class="rank-num '+(i===0?"gold":"")+'">'+(i+1)+'</div><div style="flex:1"><b>'+esc(u.display_name||"Utente")+'</b></div><b>'+esc(u.punti)+' punti</b><span class="small" style="margin-left:6px">'+esc(u.vinte)+' vinte</span></div>';}).join("");
 }
 let DatiMessaggi=[]; let MioMessaggi=null; let MioMessaggiBadges=[]; let DatiMessaggiBadges={}; let FiltroMessaggi="totale"; let TotaleGruppoMsg=0;
@@ -513,7 +539,7 @@ function renderMessaggi(){
     var pb=document.getElementById("pill-badge"); if(pb) pb.textContent=MioMessaggiBadges.length;
   }
   if(TotaleGruppoMsg){var pt=document.getElementById("pill-messaggi"); if(pt) pt.textContent=Number(TotaleGruppoMsg).toLocaleString("it-IT");}
-  if(!ordinati || ordinati.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica Messaggi. Scrivi nel gruppo!</p>'; return; }
+  if(!ordinati || ordinati.length===0){ el.innerHTML='<p class="small">Ancora nessuno in classifica Messaggi in questo gruppo. Scrivi nel gruppo!</p>'; return; }
   var titolo=FiltroMessaggi==="oggi"?"📅 Oggi":FiltroMessaggi==="settimana"?"📆 Settimana":FiltroMessaggi==="mese"?"🗓️ Mese":"🏆 Totali";
   el.innerHTML='<h3 style="margin-bottom:8px">'+titolo+' — Classifica Messaggi</h3>'+ordinati.map(function(u,i){
     var val=valoreMsg(u);
@@ -554,33 +580,43 @@ async function caricaDatiVeri(){
     var ids=getIds();
     if(!ids.group_id || !ids.user_id){
       if(pillStato){ pillStato.style.display=""; pillStato.textContent="👀 Apri da /fuffapp nel gruppo per vedere i tuoi dati veri"; }
-      renderCollections(); renderZaino(); renderBancarella(); renderClassifica();
+      var hT=document.getElementById("hero-fuffa-titolo"); if(hT) hT.textContent="Apri la miniapp con /fuffapp";
+      var hTx=document.getElementById("hero-fuffa-testo"); if(hTx) hTx.textContent="Scrivi /fuffapp nel gruppo e si apre qui, con i tuoi dati veri di quel gruppo.";
+      renderCollections(); renderZaino(); renderBancarella(); renderClassifica(); renderGruppo();
       return;
     }
     if(pillStato){ pillStato.style.display=""; pillStato.textContent="🔄 Carico dati veri…"; }
     var results=await Promise.all([
       fetchJson(API_BASE+"/api/mio-stato?group_id="+encodeURIComponent(ids.group_id)+"&user_id="+encodeURIComponent(ids.user_id)),
       fetchJson(API_BASE+"/api/bancarella?group_id="+encodeURIComponent(ids.group_id)),
-      fetchJson(API_BASE+"/api/classifica?group_id="+encodeURIComponent(ids.group_id))
+      fetchJson(API_BASE+"/api/classifica?group_id="+encodeURIComponent(ids.group_id)),
+      fetchJson(API_BASE+"/api/gruppo-stats?group_id="+encodeURIComponent(ids.group_id)),
+      fetchJson(API_BASE+"/api/fuffa-stato?group_id="+encodeURIComponent(ids.group_id))
     ]);
-    var rMio=results[0], rBanc=results[1], rClas=results[2];
+    var rMio=results[0], rBanc=results[1], rClas=results[2], rGruppo=results[3], rFuffa=results[4];
     if(rMio && rMio.ok){
       owned=new Set((rMio.zaino||[]).map(function(z){return z.id;}));
+      zainoQty={}; (rMio.zaino||[]).forEach(function(z){zainoQty[z.id]=z.qty||1;});
+      DatiCollezioni=rMio.collezioni||[];
       var ps=document.getElementById("pill-soldi"); if(ps) ps.textContent=rMio.saldo;
       var pst=document.getElementById("pill-stelle"); if(pst) pst.textContent=rMio.stelle;
       var distinti=new Set((rMio.zaino||[]).map(function(z){return z.id;})).size;
       var po2=document.getElementById("pill-oggetti"); if(po2) po2.textContent=distinti+"/32";
+      var hT2=document.getElementById("hero-fuffa-titolo"); if(hT2) hT2.textContent="Ciao, "+(rMio.display_name||"giocatore")+" 👋";
+      var hTx2=document.getElementById("hero-fuffa-testo"); if(hTx2) hTx2.textContent="Hai "+rMio.saldo+" Soldi Bucati e "+rMio.stelle+" ⭐ in questo gruppo. Sotto ci sono il tuo zaino e le collezioni vere.";
     }
     if(rBanc && rBanc.ok) DatiBancarella=rBanc.listings||[];
     if(rClas && rClas.ok) DatiClassifica=rClas.classifica||[];
-    if(pillStato) pillStato.style.display="none";
-    renderCollections(); renderZaino(); renderBancarella(); renderClassifica();
-  }catch(e){ if(pillStato) pillStato.style.display="none"; renderCollections(); renderZaino(); renderBancarella(); renderClassifica(); }
+    if(rGruppo && rGruppo.ok) DatiGruppoStats=rGruppo;
+    if(rFuffa && rFuffa.ok) DatiFuffaStato=rFuffa;
+    if(pillStato){ pillStato.style.display=""; pillStato.textContent="✅ Dati reali — gruppo "+(DatiGruppoStats&&DatiGruppoStats.title?DatiGruppoStats.title:""); }
+    setStatus("JS: OK — dati reali caricati");
+    renderCollections(); renderZaino(); renderBancarella(); renderClassifica(); renderGruppo();
+  }catch(e){ if(pillStato) pillStato.style.display="none"; renderCollections(); renderZaino(); renderBancarella(); renderClassifica(); renderGruppo(); }
 }
-// --- Avvio: prima i render locali, poi i fetch, poi Telegram ---
 try{
   try{if(window.Telegram && window.Telegram.WebApp){window.Telegram.WebApp.ready();}}catch(e){}
-  renderCollections(); renderZaino(); renderBancarella(); renderClassifica(); renderMinigame(); renderMessaggi();
+  renderCollections(); renderZaino(); renderBancarella(); renderClassifica(); renderMinigame(); renderMessaggi(); renderGruppo();
   setStatus("JS: OK — bottoni attivi");
   var ids0=getIds();
   var sec=(ids0.params.get("section")||ids0.params.get("startapp")||ids0.startParam||"");
